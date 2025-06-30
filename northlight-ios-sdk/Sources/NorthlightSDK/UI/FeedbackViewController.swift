@@ -269,7 +269,17 @@ public class NorthlightFeedbackViewController: UIViewController {
                 
                 await MainActor.run {
                     setLoadingState(false)
-                    delegate?.feedbackViewController(self, didSubmitFeedbackWithId: feedbackId)
+                    
+                    // Show success message
+                    let alert = UIAlertController(
+                        title: "Success!",
+                        message: "Your feature request has been submitted and will appear publicly once reviewed.",
+                        preferredStyle: .alert
+                    )
+                    alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
+                        self.delegate?.feedbackViewController(self, didSubmitFeedbackWithId: feedbackId)
+                    })
+                    self.present(alert, animated: true)
                 }
             } catch {
                 await MainActor.run {

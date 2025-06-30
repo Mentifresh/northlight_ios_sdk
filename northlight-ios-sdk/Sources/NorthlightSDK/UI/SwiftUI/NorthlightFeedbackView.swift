@@ -11,6 +11,8 @@ public struct NorthlightFeedbackView: View {
     @State private var showingAlert = false
     @State private var alertTitle = ""
     @State private var alertMessage = ""
+    @State private var shouldDismissAfterAlert = false
+    @State private var successFeedbackId: String?
     
     public var onSuccess: ((String) -> Void)?
     public var onCancel: (() -> Void)?
@@ -142,7 +144,14 @@ public struct NorthlightFeedbackView: View {
                 Alert(
                     title: Text(alertTitle),
                     message: Text(alertMessage),
-                    dismissButton: .default(Text("OK"))
+                    dismissButton: .default(Text("OK")) {
+                        if shouldDismissAfterAlert {
+                            if let feedbackId = successFeedbackId {
+                                onSuccess?(feedbackId)
+                            }
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                    }
                 )
             }
         }
@@ -172,8 +181,11 @@ public struct NorthlightFeedbackView: View {
                 
                 await MainActor.run {
                     isLoading = false
-                    onSuccess?(feedbackId)
-                    presentationMode.wrappedValue.dismiss()
+                    successFeedbackId = feedbackId
+                    shouldDismissAfterAlert = true
+                    alertTitle = "Success!"
+                    alertMessage = "Your feature request has been submitted and will appear publicly once reviewed."
+                    showingAlert = true
                 }
             } catch {
                 await MainActor.run {

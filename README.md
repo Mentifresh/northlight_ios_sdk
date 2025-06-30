@@ -13,9 +13,9 @@ The Northlight iOS SDK enables iOS developers to integrate user feedback collect
 
 ## Requirements
 
-- iOS 13.0+
+- iOS 17.0+
 - Swift 5.5+
-- Xcode 13.0+
+- Xcode 15.0+
 
 ## Installation
 

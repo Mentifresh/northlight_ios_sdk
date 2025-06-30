@@ -1,6 +1,5 @@
 import SwiftUI
 
-@available(iOS 14.0, *)
 public struct NorthlightFeedbackView: View {
     @Environment(\.presentationMode) var presentationMode
     

@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "NorthlightSDK",
     platforms: [
-        .iOS(.v13)
+        .iOS(.v17)
     ],
     products: [
         .library(

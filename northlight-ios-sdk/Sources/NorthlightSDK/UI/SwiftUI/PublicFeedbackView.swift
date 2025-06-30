@@ -1,6 +1,5 @@
 import SwiftUI
 
-@available(iOS 14.0, *)
 public struct PublicFeedbackView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var feedbackItems: [Feedback] = []
@@ -206,7 +205,6 @@ public struct PublicFeedbackView: View {
     }
 }
 
-@available(iOS 14.0, *)
 struct FeedbackRow: View {
     let feedback: Feedback
     let hasVoted: Bool

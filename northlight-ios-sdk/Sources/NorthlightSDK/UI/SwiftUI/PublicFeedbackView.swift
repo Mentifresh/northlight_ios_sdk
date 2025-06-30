@@ -14,20 +14,22 @@ public struct PublicFeedbackView: View {
     
     enum StatusFilter: String, CaseIterable {
         case all = "All"
-        case inProgress = "In Progress"
-        case approved = "Approved"
-        case suggested = "Suggested"
         case pending = "Pending"
+        case suggested = "Suggested"
+        case approved = "Approved"
+        case inProgress = "In Progress"
         case completed = "Completed"
+        case rejected = "Rejected"
         
         var statusValue: String? {
             switch self {
             case .all: return nil
-            case .inProgress: return "in progress"
-            case .approved: return "approved"
-            case .suggested: return "suggested"
             case .pending: return "pending"
+            case .suggested: return "suggested"
+            case .approved: return "approved"
+            case .inProgress: return "in_progress"
             case .completed: return "completed"
+            case .rejected: return "rejected"
             }
         }
     }
@@ -214,9 +216,12 @@ public struct PublicFeedbackView: View {
                     votedFeedbackIds.insert(feedback.id)
                     saveVotedIds()
                     
-                    // Update the feedback item
+                    // Update the feedback item in both arrays
                     if let index = feedbackItems.firstIndex(where: { $0.id == feedback.id }) {
                         feedbackItems[index].voteCount = newVoteCount
+                    }
+                    if let index = filteredFeedbackItems.firstIndex(where: { $0.id == feedback.id }) {
+                        filteredFeedbackItems[index].voteCount = newVoteCount
                     }
                 }
             } catch {
@@ -245,7 +250,7 @@ public struct PublicFeedbackView: View {
     }
     
     private func sortFeedbackByStatus(_ feedback: [Feedback]) -> [Feedback] {
-        let statusOrder: [String] = ["in progress", "approved", "suggested", "pending", "completed"]
+        let statusOrder: [String] = ["pending", "suggested", "approved", "in_progress", "completed", "rejected"]
         
         return feedback.sorted { first, second in
             let firstIndex = statusOrder.firstIndex(of: first.status.lowercased()) ?? Int.max
@@ -341,16 +346,18 @@ struct StatusBadge: View {
     
     var backgroundColor: Color {
         switch status.lowercased() {
-        case "in progress":
-            return Color.blue
-        case "approved":
-            return Color.green
-        case "suggested":
-            return Color.orange
         case "pending":
             return Color.gray
+        case "suggested":
+            return Color.orange
+        case "approved":
+            return Color.green
+        case "in_progress":
+            return Color.blue
         case "completed":
             return Color.purple
+        case "rejected":
+            return Color.red
         default:
             return Color.gray
         }

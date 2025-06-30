@@ -23,20 +23,22 @@ public class PublicFeedbackViewController: UIViewController {
     
     enum StatusFilter: String, CaseIterable {
         case all = "All"
-        case inProgress = "In Progress"
-        case approved = "Approved"
-        case suggested = "Suggested"
         case pending = "Pending"
+        case suggested = "Suggested"
+        case approved = "Approved"
+        case inProgress = "In Progress"
         case completed = "Completed"
+        case rejected = "Rejected"
         
         var statusValue: String? {
             switch self {
             case .all: return nil
-            case .inProgress: return "in progress"
-            case .approved: return "approved"
-            case .suggested: return "suggested"
             case .pending: return "pending"
+            case .suggested: return "suggested"
+            case .approved: return "approved"
+            case .inProgress: return "in_progress"
             case .completed: return "completed"
+            case .rejected: return "rejected"
             }
         }
     }
@@ -238,13 +240,12 @@ public class PublicFeedbackViewController: UIViewController {
                     self.votedFeedbackIds.insert(feedback.id)
                     self.saveVotedFeedbackIds()
                     
-                    // Update the feedback item
-                    if var updatedFeedback = self.feedbackItems.first(where: { $0.id == feedback.id }) {
-                        var mutableFeedback = updatedFeedback
-                        mutableFeedback.voteCount = newVoteCount
-                        if let index = self.feedbackItems.firstIndex(where: { $0.id == feedback.id }) {
-                            self.feedbackItems[index] = mutableFeedback
-                        }
+                    // Update the feedback item in both arrays
+                    if let index = self.feedbackItems.firstIndex(where: { $0.id == feedback.id }) {
+                        self.feedbackItems[index].voteCount = newVoteCount
+                    }
+                    if let index = self.filteredFeedbackItems.firstIndex(where: { $0.id == feedback.id }) {
+                        self.filteredFeedbackItems[index].voteCount = newVoteCount
                     }
                     
                     // Reload the cell
@@ -289,7 +290,7 @@ public class PublicFeedbackViewController: UIViewController {
     }
     
     private func sortFeedbackByStatus(_ feedback: [Feedback]) -> [Feedback] {
-        let statusOrder: [String] = ["in progress", "approved", "suggested", "pending", "completed"]
+        let statusOrder: [String] = ["pending", "suggested", "approved", "in_progress", "completed", "rejected"]
         
         return feedback.sorted { first, second in
             let firstIndex = statusOrder.firstIndex(of: first.status.lowercased()) ?? Int.max

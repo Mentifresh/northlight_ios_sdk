@@ -152,16 +152,18 @@ class FeedbackCell: UITableViewCell {
         
         // Set status color
         switch feedback.status.lowercased() {
-        case "in progress":
-            statusLabel.backgroundColor = UIColor.systemBlue
-        case "approved":
-            statusLabel.backgroundColor = UIColor.systemGreen
-        case "suggested":
-            statusLabel.backgroundColor = UIColor.systemOrange
         case "pending":
             statusLabel.backgroundColor = UIColor.systemGray
+        case "suggested":
+            statusLabel.backgroundColor = UIColor.systemOrange
+        case "approved":
+            statusLabel.backgroundColor = UIColor.systemGreen
+        case "in_progress":
+            statusLabel.backgroundColor = UIColor.systemBlue
         case "completed":
             statusLabel.backgroundColor = UIColor.systemPurple
+        case "rejected":
+            statusLabel.backgroundColor = UIColor.systemRed
         default:
             statusLabel.backgroundColor = UIColor.systemGray
         }

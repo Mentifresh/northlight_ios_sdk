@@ -10,6 +10,7 @@ class FeedbackCell: UITableViewCell {
     private let titleLabel = UILabel()
     private let descriptionLabel = UILabel()
     private let categoryLabel = UILabel()
+    private let statusLabel = UILabel()
     private let voteButton = UIButton(type: .system)
     private let voteCountLabel = UILabel()
     private let dateLabel = UILabel()
@@ -52,6 +53,14 @@ class FeedbackCell: UITableViewCell {
         categoryLabel.font = NorthlightTheme.Typography.caption
         categoryLabel.textColor = NorthlightTheme.Colors.accent
         
+        // Status
+        statusLabel.translatesAutoresizingMaskIntoConstraints = false
+        statusLabel.font = NorthlightTheme.Typography.small
+        statusLabel.textAlignment = .center
+        statusLabel.layer.cornerRadius = 4
+        statusLabel.layer.masksToBounds = true
+        statusLabel.textColor = .white
+        
         // Vote button
         voteButton.translatesAutoresizingMaskIntoConstraints = false
         voteButton.setImage(UIImage(systemName: "arrow.up"), for: .normal)
@@ -77,6 +86,7 @@ class FeedbackCell: UITableViewCell {
         containerView.addSubview(titleLabel)
         containerView.addSubview(descriptionLabel)
         containerView.addSubview(categoryLabel)
+        containerView.addSubview(statusLabel)
         containerView.addSubview(voteButton)
         containerView.addSubview(voteCountLabel)
         containerView.addSubview(dateLabel)
@@ -108,12 +118,15 @@ class FeedbackCell: UITableViewCell {
             descriptionLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: NorthlightTheme.Spacing.medium),
             descriptionLabel.trailingAnchor.constraint(equalTo: voteButton.leadingAnchor, constant: -NorthlightTheme.Spacing.medium),
             
-            // Category and date
-            categoryLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: NorthlightTheme.Spacing.small),
-            categoryLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: NorthlightTheme.Spacing.medium),
-            categoryLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -NorthlightTheme.Spacing.medium),
+            // Category, status and date
+            statusLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: NorthlightTheme.Spacing.small),
+            statusLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: NorthlightTheme.Spacing.medium),
+            statusLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -NorthlightTheme.Spacing.medium),
             
-            dateLabel.centerYAnchor.constraint(equalTo: categoryLabel.centerYAnchor),
+            categoryLabel.centerYAnchor.constraint(equalTo: statusLabel.centerYAnchor),
+            categoryLabel.leadingAnchor.constraint(equalTo: statusLabel.trailingAnchor, constant: NorthlightTheme.Spacing.small),
+            
+            dateLabel.centerYAnchor.constraint(equalTo: statusLabel.centerYAnchor),
             dateLabel.trailingAnchor.constraint(equalTo: voteButton.leadingAnchor, constant: -NorthlightTheme.Spacing.medium)
         ])
     }
@@ -130,6 +143,28 @@ class FeedbackCell: UITableViewCell {
         }
         
         voteCountLabel.text = "\(feedback.voteCount)"
+        
+        // Configure status
+        let statusText = feedback.status.split(separator: " ")
+            .map { $0.capitalized }
+            .joined(separator: " ")
+        statusLabel.text = "  \(statusText)  "  // Add padding with spaces
+        
+        // Set status color
+        switch feedback.status.lowercased() {
+        case "in progress":
+            statusLabel.backgroundColor = UIColor.systemBlue
+        case "approved":
+            statusLabel.backgroundColor = UIColor.systemGreen
+        case "suggested":
+            statusLabel.backgroundColor = UIColor.systemOrange
+        case "pending":
+            statusLabel.backgroundColor = UIColor.systemGray
+        case "completed":
+            statusLabel.backgroundColor = UIColor.systemPurple
+        default:
+            statusLabel.backgroundColor = UIColor.systemGray
+        }
         
         // Format date
         if let date = ISO8601DateFormatter().date(from: feedback.createdAt) {

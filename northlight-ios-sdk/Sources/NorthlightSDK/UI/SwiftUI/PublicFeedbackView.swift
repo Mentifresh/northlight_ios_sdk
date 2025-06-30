@@ -3,12 +3,34 @@ import SwiftUI
 public struct PublicFeedbackView: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var feedbackItems: [Feedback] = []
+    @State private var filteredFeedbackItems: [Feedback] = []
+    @State private var selectedStatusFilter: StatusFilter = .all
     @State private var isLoading = true
     @State private var showingNewFeedback = false
     @State private var votedFeedbackIds: Set<String> = []
     @State private var showingAlert = false
     @State private var alertTitle = ""
     @State private var alertMessage = ""
+    
+    enum StatusFilter: String, CaseIterable {
+        case all = "All"
+        case inProgress = "In Progress"
+        case approved = "Approved"
+        case suggested = "Suggested"
+        case pending = "Pending"
+        case completed = "Completed"
+        
+        var statusValue: String? {
+            switch self {
+            case .all: return nil
+            case .inProgress: return "in progress"
+            case .approved: return "approved"
+            case .suggested: return "suggested"
+            case .pending: return "pending"
+            case .completed: return "completed"
+            }
+        }
+    }
     
     public var onNewFeedbackSubmitted: ((String) -> Void)?
     public var onCancel: (() -> Void)?
@@ -25,7 +47,7 @@ public struct PublicFeedbackView: View {
                 if isLoading {
                     ProgressView()
                         .scaleEffect(1.5)
-                } else if feedbackItems.isEmpty {
+                } else if filteredFeedbackItems.isEmpty {
                     emptyStateView
                 } else {
                     feedbackListView
@@ -49,6 +71,22 @@ public struct PublicFeedbackView: View {
                     }
                     .foregroundColor(Color(NorthlightTheme.Colors.primary))
                 }
+                
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Menu {
+                        ForEach(StatusFilter.allCases, id: \.self) { filter in
+                            Button(action: {
+                                selectedStatusFilter = filter
+                                applyFilter()
+                            }) {
+                                Label(filter.rawValue, systemImage: selectedStatusFilter == filter ? "checkmark" : "")
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "line.horizontal.3.decrease.circle")
+                            .foregroundColor(Color(NorthlightTheme.Colors.primary))
+                    }
+                }
             }
             .alert(isPresented: $showingAlert) {
                 Alert(
@@ -66,7 +104,8 @@ public struct PublicFeedbackView: View {
             NorthlightFeedbackView(
                 onSuccess: { feedbackId in
                     onNewFeedbackSubmitted?(feedbackId)
-                    presentationMode.wrappedValue.dismiss()
+                    // Refresh the feedback list to show the new pending item
+                    loadFeedback()
                 }
             )
         }
@@ -87,7 +126,7 @@ public struct PublicFeedbackView: View {
     private var feedbackListView: some View {
         ScrollView {
             LazyVStack(spacing: NorthlightTheme.Spacing.small) {
-                ForEach(feedbackItems, id: \.id) { feedback in
+                ForEach(filteredFeedbackItems, id: \.id) { feedback in
                     FeedbackRow(
                         feedback: feedback,
                         hasVoted: votedFeedbackIds.contains(feedback.id),
@@ -143,7 +182,8 @@ public struct PublicFeedbackView: View {
         
         do {
             let feedback = try await Northlight.getPublicFeedback()
-            feedbackItems = feedback.sorted { $0.voteCount > $1.voteCount }
+            feedbackItems = sortFeedbackByStatus(feedback)
+            applyFilter()
             isLoading = false
         } catch {
             isLoading = false
@@ -203,6 +243,30 @@ public struct PublicFeedbackView: View {
         }
         showingAlert = true
     }
+    
+    private func sortFeedbackByStatus(_ feedback: [Feedback]) -> [Feedback] {
+        let statusOrder: [String] = ["in progress", "approved", "suggested", "pending", "completed"]
+        
+        return feedback.sorted { first, second in
+            let firstIndex = statusOrder.firstIndex(of: first.status.lowercased()) ?? Int.max
+            let secondIndex = statusOrder.firstIndex(of: second.status.lowercased()) ?? Int.max
+            
+            if firstIndex != secondIndex {
+                return firstIndex < secondIndex
+            } else {
+                // If same status, sort by vote count
+                return first.voteCount > second.voteCount
+            }
+        }
+    }
+    
+    private func applyFilter() {
+        if let statusValue = selectedStatusFilter.statusValue {
+            filteredFeedbackItems = feedbackItems.filter { $0.status.lowercased() == statusValue }
+        } else {
+            filteredFeedbackItems = feedbackItems
+        }
+    }
 }
 
 struct FeedbackRow: View {
@@ -224,6 +288,8 @@ struct FeedbackRow: View {
                     .lineLimit(3)
                 
                 HStack {
+                    StatusBadge(status: feedback.status)
+                    
                     if let category = feedback.category, !category.isEmpty {
                         Text(category)
                             .font(NorthlightTheme.Typography.captionSwiftUI)
@@ -267,5 +333,42 @@ struct FeedbackRow: View {
             RoundedRectangle(cornerRadius: NorthlightTheme.CornerRadius.large)
                 .stroke(Color(NorthlightTheme.Colors.border), lineWidth: 1)
         )
+    }
+}
+
+struct StatusBadge: View {
+    let status: String
+    
+    var backgroundColor: Color {
+        switch status.lowercased() {
+        case "in progress":
+            return Color.blue
+        case "approved":
+            return Color.green
+        case "suggested":
+            return Color.orange
+        case "pending":
+            return Color.gray
+        case "completed":
+            return Color.purple
+        default:
+            return Color.gray
+        }
+    }
+    
+    var displayText: String {
+        status.split(separator: " ")
+            .map { $0.capitalized }
+            .joined(separator: " ")
+    }
+    
+    var body: some View {
+        Text(displayText)
+            .font(NorthlightTheme.Typography.smallSwiftUI)
+            .foregroundColor(.white)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(backgroundColor)
+            .cornerRadius(4)
     }
 }

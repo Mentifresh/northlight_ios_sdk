@@ -17,7 +17,29 @@ public class PublicFeedbackViewController: UIViewController {
     private let refreshControl = UIRefreshControl()
     
     private var feedbackItems: [Feedback] = []
+    private var filteredFeedbackItems: [Feedback] = []
     private var votedFeedbackIds: Set<String> = []
+    private var selectedStatusFilter: StatusFilter = .all
+    
+    enum StatusFilter: String, CaseIterable {
+        case all = "All"
+        case inProgress = "In Progress"
+        case approved = "Approved"
+        case suggested = "Suggested"
+        case pending = "Pending"
+        case completed = "Completed"
+        
+        var statusValue: String? {
+            switch self {
+            case .all: return nil
+            case .inProgress: return "in progress"
+            case .approved: return "approved"
+            case .suggested: return "suggested"
+            case .pending: return "pending"
+            case .completed: return "completed"
+            }
+        }
+    }
     
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -50,6 +72,16 @@ public class PublicFeedbackViewController: UIViewController {
             action: #selector(closeTapped)
         )
         navigationItem.leftBarButtonItem?.tintColor = NorthlightTheme.Colors.primary
+        
+        // Add filter button
+        let filterButton = UIBarButtonItem(
+            image: UIImage(systemName: "line.horizontal.3.decrease.circle"),
+            style: .plain,
+            target: self,
+            action: #selector(filterTapped)
+        )
+        filterButton.tintColor = NorthlightTheme.Colors.primary
+        navigationItem.rightBarButtonItem = filterButton
         
         // Table view
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -164,11 +196,12 @@ public class PublicFeedbackViewController: UIViewController {
             do {
                 let feedback = try await Northlight.getPublicFeedback()
                 await MainActor.run {
-                    self.feedbackItems = feedback.sorted { $0.voteCount > $1.voteCount }
+                    self.feedbackItems = self.sortFeedbackByStatus(feedback)
+                    self.applyFilter()
                     self.tableView.reloadData()
                     self.loadingView.stopAnimating()
                     self.refreshControl.endRefreshing()
-                    self.emptyStateLabel.isHidden = !feedback.isEmpty
+                    self.emptyStateLabel.isHidden = !self.filteredFeedbackItems.isEmpty
                 }
             } catch {
                 await MainActor.run {
@@ -181,9 +214,9 @@ public class PublicFeedbackViewController: UIViewController {
     }
     
     func voteFeedback(at indexPath: IndexPath) {
-        guard indexPath.row < feedbackItems.count else { return }
+        guard indexPath.row < filteredFeedbackItems.count else { return }
         
-        let feedback = feedbackItems[indexPath.row]
+        let feedback = filteredFeedbackItems[indexPath.row]
         
         guard !votedFeedbackIds.contains(feedback.id) else {
             showAlert(title: "Already Voted", message: "You have already voted for this feature request.")
@@ -254,18 +287,70 @@ public class PublicFeedbackViewController: UIViewController {
         
         showAlert(title: title, message: message)
     }
+    
+    private func sortFeedbackByStatus(_ feedback: [Feedback]) -> [Feedback] {
+        let statusOrder: [String] = ["in progress", "approved", "suggested", "pending", "completed"]
+        
+        return feedback.sorted { first, second in
+            let firstIndex = statusOrder.firstIndex(of: first.status.lowercased()) ?? Int.max
+            let secondIndex = statusOrder.firstIndex(of: second.status.lowercased()) ?? Int.max
+            
+            if firstIndex != secondIndex {
+                return firstIndex < secondIndex
+            } else {
+                // If same status, sort by vote count
+                return first.voteCount > second.voteCount
+            }
+        }
+    }
+    
+    private func applyFilter() {
+        if let statusValue = selectedStatusFilter.statusValue {
+            filteredFeedbackItems = feedbackItems.filter { $0.status.lowercased() == statusValue }
+        } else {
+            filteredFeedbackItems = feedbackItems
+        }
+    }
+    
+    @objc private func filterTapped() {
+        let actionSheet = UIAlertController(title: "Filter by Status", message: nil, preferredStyle: .actionSheet)
+        
+        for filter in StatusFilter.allCases {
+            let action = UIAlertAction(title: filter.rawValue, style: .default) { [weak self] _ in
+                self?.selectedStatusFilter = filter
+                self?.applyFilter()
+                self?.tableView.reloadData()
+                self?.emptyStateLabel.isHidden = !self?.filteredFeedbackItems.isEmpty ?? true
+            }
+            
+            if selectedStatusFilter == filter {
+                action.setValue(true, forKey: "checked")
+            }
+            
+            actionSheet.addAction(action)
+        }
+        
+        actionSheet.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        
+        // For iPad
+        if let popover = actionSheet.popoverPresentationController {
+            popover.barButtonItem = navigationItem.rightBarButtonItem
+        }
+        
+        present(actionSheet, animated: true)
+    }
 }
 
 // MARK: - UITableViewDataSource
 
 extension PublicFeedbackViewController: UITableViewDataSource {
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return feedbackItems.count
+        return filteredFeedbackItems.count
     }
     
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: FeedbackCell.identifier, for: indexPath) as! FeedbackCell
-        let feedback = feedbackItems[indexPath.row]
+        let feedback = filteredFeedbackItems[indexPath.row]
         let hasVoted = votedFeedbackIds.contains(feedback.id)
         cell.configure(with: feedback, hasVoted: hasVoted)
         cell.onVoteTapped = { [weak self] in
@@ -281,7 +366,7 @@ extension PublicFeedbackViewController: UITableViewDelegate {
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        let feedback = feedbackItems[indexPath.row]
+        let feedback = filteredFeedbackItems[indexPath.row]
         let detailVC = FeedbackDetailViewController(feedback: feedback)
         navigationController?.pushViewController(detailVC, animated: true)
     }

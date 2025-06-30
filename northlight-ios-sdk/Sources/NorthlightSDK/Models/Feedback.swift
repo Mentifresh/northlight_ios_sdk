@@ -6,7 +6,7 @@ public struct Feedback: Codable {
     public let description: String
     public let status: String
     public let category: String?
-    public let voteCount: Int
+    public var voteCount: Int
     public let createdAt: String
     
     enum CodingKeys: String, CodingKey {

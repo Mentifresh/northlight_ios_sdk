@@ -3,7 +3,7 @@ import SwiftUI
 
 extension Northlight {
     
-    /// Presents a feedback form modally. Automatically detects whether to use UIKit or SwiftUI presentation.
+    /// Presents a feedback form modally. Shows existing feedback first, allowing users to view and vote before submitting new feedback.
     /// - Parameters:
     ///   - onSuccess: Called when feedback is successfully submitted with the feedback ID
     ///   - onCancel: Called when the user cancels the feedback form
@@ -13,27 +13,15 @@ extension Northlight {
         onCancel: (() -> Void)? = nil,
         onError: ((Error) -> Void)? = nil
     ) {
-        DispatchQueue.main.async {
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-               let topViewController = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController?.topMostViewController() {
-                
-                let feedbackVC = NorthlightFeedbackViewController()
-                let navigationController = UINavigationController(rootViewController: feedbackVC)
-                
-                let delegate = PresentationDelegate(
-                    navigationController: navigationController,
-                    onSuccess: onSuccess,
-                    onCancel: onCancel,
-                    onError: onError
-                )
-                
-                feedbackVC.delegate = delegate
-                // Keep a strong reference to the delegate
-                objc_setAssociatedObject(feedbackVC, "NorthlightDelegate", delegate, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-                
-                topViewController.present(navigationController, animated: true)
+        // Show public feedback first
+        presentPublicFeedback(
+            onNewFeedback: {
+                // User wants to submit new feedback - this is handled internally by the public feedback view
+            },
+            onCancel: {
+                onCancel?()
             }
-        }
+        )
     }
     
     /// Presents a bug report form modally. Automatically detects whether to use UIKit or SwiftUI presentation.
@@ -140,7 +128,7 @@ private class BugReportPresentationDelegate: NSObject, NorthlightBugReportViewCo
 
 // MARK: - UIViewController Extension
 
-private extension UIViewController {
+extension UIViewController {
     func topMostViewController() -> UIViewController {
         if let presented = self.presentedViewController {
             return presented.topMostViewController()

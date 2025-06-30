@@ -114,23 +114,27 @@ try await Northlight.vote(feedbackId: "feedback_uuid")
 The SDK provides unified methods that work in both UIKit and SwiftUI apps:
 
 ```swift
-// Present feedback form - works anywhere!
+// Present feedback board - shows existing feedback with voting, then allows new submissions
 Northlight.presentFeedbackForm(
     onSuccess: { feedbackId in
         print("Feedback submitted: \(feedbackId)")
     },
     onCancel: {
         print("User cancelled")
-    },
-    onError: { error in
-        print("Error: \(error)")
     }
 )
 
-// Present bug report form - works anywhere!
+// Present bug report form directly
 Northlight.presentBugReportForm(
     onSuccess: { bugId in
         print("Bug reported: \(bugId)")
+    }
+)
+
+// Present public feedback board only (without new submission option)
+Northlight.presentPublicFeedback(
+    onCancel: {
+        print("User closed feedback board")
     }
 )
 ```

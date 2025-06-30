@@ -321,7 +321,7 @@ public class PublicFeedbackViewController: UIViewController {
                 self?.selectedStatusFilter = filter
                 self?.applyFilter()
                 self?.tableView.reloadData()
-                self?.emptyStateLabel.isHidden = !self?.filteredFeedbackItems.isEmpty ?? true
+                self?.emptyStateLabel.isHidden = !(self?.filteredFeedbackItems.isEmpty ?? false)
             }
             
             if selectedStatusFilter == filter {

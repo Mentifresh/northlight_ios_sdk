@@ -84,11 +84,12 @@ extension UITextField {
         // Remove default border style
         borderStyle = .none
         
-        // Add padding
-        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: frame.height))
+        // Add padding with fixed size
+        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 48))
         leftView = paddingView
         leftViewMode = .always
-        rightView = paddingView
+        let rightPaddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 48))
+        rightView = rightPaddingView
         rightViewMode = .always
     }
 }

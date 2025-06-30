@@ -14,7 +14,12 @@ public final class Northlight {
     private init() {}
     
     public static func configure(apiKey: String) {
+        guard !apiKey.isEmpty else {
+            print("[Northlight] Warning: Empty API key provided")
+            return
+        }
         shared.apiKey = apiKey
+        print("[Northlight] SDK configured with API key: \(String(apiKey.prefix(8)))...")
     }
     
     public func setUserEmail(_ email: String?) {
@@ -94,6 +99,8 @@ extension Northlight {
         
         let encoder = JSONEncoder()
         let body = try encoder.encode(submission)
+        
+        print("[Northlight] Submitting feedback with title: \(title)")
         
         let response = try await NetworkService.shared.request(
             "/feedback",

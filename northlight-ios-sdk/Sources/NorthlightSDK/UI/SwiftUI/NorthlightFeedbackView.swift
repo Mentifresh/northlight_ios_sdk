@@ -29,42 +29,94 @@ public struct NorthlightFeedbackView: View {
     
     public var body: some View {
         NavigationView {
-            Form {
-                Section(header: Text("Feedback Details")) {
-                    TextField("Title (required)", text: $title)
-                        .disabled(isLoading)
+            ScrollView {
+                VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xLarge) {
+                    // Title Section
+                    VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
+                        Label("Title", isRequired: true)
+                        
+                        TextField("What's your feedback about?", text: $title)
+                            .textFieldStyle(NorthlightTextFieldStyle())
+                            .disabled(isLoading)
+                    }
                     
-                    TextEditor(text: $description)
-                        .frame(minHeight: 100)
-                        .overlay(
-                            Group {
-                                if description.isEmpty {
-                                    Text("Description (required)")
-                                        .foregroundColor(Color(.placeholderText))
-                                        .padding(.horizontal, 4)
-                                        .padding(.vertical, 8)
-                                        .allowsHitTesting(false)
-                                }
-                            },
-                            alignment: .topLeading
-                        )
-                        .disabled(isLoading)
-                }
-                
-                Section(header: Text("Optional Information")) {
-                    Picker("Category", selection: $category) {
-                        ForEach(categories, id: \.self) { category in
-                            Text(category).tag(category)
+                    // Description Section
+                    VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
+                        Label("Description", isRequired: true)
+                        
+                        ZStack(alignment: .topLeading) {
+                            TextEditor(text: $description)
+                                .frame(minHeight: 140)
+                                .padding(4)
+                                .background(Color(NorthlightTheme.Colors.secondaryBackground))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: NorthlightTheme.CornerRadius.input)
+                                        .stroke(Color(NorthlightTheme.Colors.border), lineWidth: 1)
+                                )
+                                .disabled(isLoading)
+                            
+                            if description.isEmpty {
+                                Text("Tell us more about your feedback...")
+                                    .foregroundColor(Color(NorthlightTheme.Colors.tertiaryLabel))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 12)
+                                    .allowsHitTesting(false)
+                            }
                         }
                     }
-                    .disabled(isLoading)
                     
-                    TextField("Email", text: $email)
-                        .keyboardType(.emailAddress)
-                        .autocapitalization(.none)
+                    // Category Section
+                    VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
+                        Label("Category", isRequired: false)
+                        
+                        Picker("Category", selection: $category) {
+                            ForEach(categories, id: \.self) { category in
+                                Text(category.isEmpty ? "Select a category" : category).tag(category)
+                            }
+                        }
+                        .pickerStyle(MenuPickerStyle())
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 48)
+                        .background(Color(NorthlightTheme.Colors.secondaryBackground))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: NorthlightTheme.CornerRadius.input)
+                                .stroke(Color(NorthlightTheme.Colors.border), lineWidth: 1)
+                        )
                         .disabled(isLoading)
+                    }
+                    
+                    // Email Section
+                    VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
+                        Label("Email", isRequired: false)
+                        
+                        TextField("your@email.com", text: $email)
+                            .textFieldStyle(NorthlightTextFieldStyle())
+                            .keyboardType(.emailAddress)
+                            .autocapitalization(.none)
+                            .disabled(isLoading)
+                    }
+                    
+                    // Submit Button
+                    Button(action: submitFeedback) {
+                        if isLoading {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        } else {
+                            Text("Submit Feedback")
+                                .font(NorthlightTheme.Typography.headlineSwiftUI)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 52)
+                    .background(Color(NorthlightTheme.Colors.buttonBackground))
+                    .foregroundColor(Color(NorthlightTheme.Colors.buttonText))
+                    .cornerRadius(NorthlightTheme.CornerRadius.button)
+                    .disabled(isLoading || title.isEmpty || description.isEmpty)
+                    .padding(.top, NorthlightTheme.Spacing.small)
                 }
+                .padding(NorthlightTheme.Spacing.large)
             }
+            .background(Color(NorthlightTheme.Colors.background))
             .navigationTitle("Send Feedback")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -156,5 +208,43 @@ public struct NorthlightFeedbackView: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Helper Views
+
+@available(iOS 14.0, *)
+struct Label: View {
+    let text: String
+    let isRequired: Bool
+    
+    var body: some View {
+        HStack(spacing: 2) {
+            Text(text)
+                .font(NorthlightTheme.Typography.captionSwiftUI)
+                .foregroundColor(Color(NorthlightTheme.Colors.secondaryLabel))
+            
+            if isRequired {
+                Text("*")
+                    .font(NorthlightTheme.Typography.captionSwiftUI)
+                    .foregroundColor(Color(NorthlightTheme.Colors.error))
+            }
+        }
+    }
+}
+
+// MARK: - Custom Styles
+
+@available(iOS 14.0, *)
+struct NorthlightTextFieldStyle: TextFieldStyle {
+    func _body(configuration: TextField<Self._Label>) -> some View {
+        configuration
+            .padding(.horizontal, 16)
+            .frame(height: 48)
+            .background(Color(NorthlightTheme.Colors.secondaryBackground))
+            .overlay(
+                RoundedRectangle(cornerRadius: NorthlightTheme.CornerRadius.input)
+                    .stroke(Color(NorthlightTheme.Colors.border), lineWidth: 1)
+            )
     }
 }

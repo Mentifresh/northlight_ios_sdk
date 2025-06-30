@@ -28,60 +28,115 @@ public struct NorthlightBugReportView: View {
     
     public var body: some View {
         NavigationView {
-            Form {
-                Section(header: Text("Bug Details")) {
-                    TextField("Title (required)", text: $title)
-                        .disabled(isLoading)
-                    
-                    TextEditor(text: $description)
-                        .frame(minHeight: 100)
-                        .overlay(
-                            Group {
-                                if description.isEmpty {
-                                    Text("Description (required)")
-                                        .foregroundColor(Color(.placeholderText))
-                                        .padding(.horizontal, 4)
-                                        .padding(.vertical, 8)
-                                        .allowsHitTesting(false)
-                                }
-                            },
-                            alignment: .topLeading
-                        )
-                        .disabled(isLoading)
-                    
-                    Picker("Severity", selection: $severity) {
-                        Text("Low").tag(BugSeverity.low)
-                        Text("Medium").tag(BugSeverity.medium)
-                        Text("High").tag(BugSeverity.high)
-                        Text("Critical").tag(BugSeverity.critical)
+            ScrollView {
+                VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xLarge) {
+                    // Title Section
+                    VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
+                        Label("Title", isRequired: true)
+                        
+                        TextField("Brief summary of the issue", text: $title)
+                            .textFieldStyle(NorthlightTextFieldStyle())
+                            .disabled(isLoading)
                     }
-                    .pickerStyle(SegmentedPickerStyle())
-                    .disabled(isLoading)
-                }
-                
-                Section(header: Text("Additional Information")) {
-                    TextEditor(text: $stepsToReproduce)
-                        .frame(minHeight: 80)
-                        .overlay(
-                            Group {
-                                if stepsToReproduce.isEmpty {
-                                    Text("Steps to reproduce (optional)")
-                                        .foregroundColor(Color(.placeholderText))
-                                        .padding(.horizontal, 4)
-                                        .padding(.vertical, 8)
-                                        .allowsHitTesting(false)
-                                }
-                            },
-                            alignment: .topLeading
-                        )
-                        .disabled(isLoading)
                     
-                    TextField("Email (optional)", text: $email)
-                        .keyboardType(.emailAddress)
-                        .autocapitalization(.none)
+                    // Description Section
+                    VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
+                        Label("Description", isRequired: true)
+                        
+                        ZStack(alignment: .topLeading) {
+                            TextEditor(text: $description)
+                                .frame(minHeight: 120)
+                                .padding(4)
+                                .background(Color(NorthlightTheme.Colors.secondaryBackground))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: NorthlightTheme.CornerRadius.input)
+                                        .stroke(Color(NorthlightTheme.Colors.border), lineWidth: 1)
+                                )
+                                .disabled(isLoading)
+                            
+                            if description.isEmpty {
+                                Text("Describe what happened...")
+                                    .foregroundColor(Color(NorthlightTheme.Colors.tertiaryLabel))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 12)
+                                    .allowsHitTesting(false)
+                            }
+                        }
+                    }
+                    
+                    // Severity Section
+                    VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
+                        Text("Severity")
+                            .font(NorthlightTheme.Typography.captionSwiftUI)
+                            .foregroundColor(Color(NorthlightTheme.Colors.secondaryLabel))
+                        
+                        Picker("Severity", selection: $severity) {
+                            Text("Low").tag(BugSeverity.low)
+                            Text("Medium").tag(BugSeverity.medium)
+                            Text("High").tag(BugSeverity.high)
+                            Text("Critical").tag(BugSeverity.critical)
+                        }
+                        .pickerStyle(SegmentedPickerStyle())
                         .disabled(isLoading)
+                    }
+                    
+                    // Steps to Reproduce Section
+                    VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
+                        Label("Steps to Reproduce", isRequired: false)
+                        
+                        ZStack(alignment: .topLeading) {
+                            TextEditor(text: $stepsToReproduce)
+                                .frame(minHeight: 100)
+                                .padding(4)
+                                .background(Color(NorthlightTheme.Colors.secondaryBackground))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: NorthlightTheme.CornerRadius.input)
+                                        .stroke(Color(NorthlightTheme.Colors.border), lineWidth: 1)
+                                )
+                                .disabled(isLoading)
+                            
+                            if stepsToReproduce.isEmpty {
+                                Text("1.\n2.\n3.")
+                                    .foregroundColor(Color(NorthlightTheme.Colors.tertiaryLabel))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 12)
+                                    .allowsHitTesting(false)
+                            }
+                        }
+                    }
+                    
+                    // Email Section
+                    VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
+                        Label("Email", isRequired: false)
+                        
+                        TextField("your@email.com", text: $email)
+                            .textFieldStyle(NorthlightTextFieldStyle())
+                            .keyboardType(.emailAddress)
+                            .autocapitalization(.none)
+                            .disabled(isLoading)
+                    }
+                    
+                    // Submit Button
+                    Button(action: submitBugReport) {
+                        if isLoading {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        } else {
+                            Text("Submit Bug Report")
+                                .font(NorthlightTheme.Typography.headlineSwiftUI)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 52)
+                    .background(Color(NorthlightTheme.Colors.error))
+                    .foregroundColor(.white)
+                    .cornerRadius(NorthlightTheme.CornerRadius.button)
+                    .disabled(isLoading || title.isEmpty || description.isEmpty)
+                    .padding(.top, NorthlightTheme.Spacing.small)
                 }
+                .padding(NorthlightTheme.Spacing.large)
             }
+            .background(Color(NorthlightTheme.Colors.background))
             .navigationTitle("Report Bug")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

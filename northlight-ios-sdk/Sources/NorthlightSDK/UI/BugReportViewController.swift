@@ -32,67 +32,102 @@ public class NorthlightBugReportViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = NorthlightTheme.Colors.background
         
+        // Configure navigation bar
         navigationItem.title = "Report Bug"
-        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelTapped))
+        navigationController?.navigationBar.prefersLargeTitles = false
+        
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = NorthlightTheme.Colors.background
+        appearance.titleTextAttributes = [.font: NorthlightTheme.Typography.headline]
+        appearance.shadowColor = .clear
+        navigationController?.navigationBar.standardAppearance = appearance
+        navigationController?.navigationBar.scrollEdgeAppearance = appearance
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            title: "Cancel",
+            style: .plain,
+            target: self,
+            action: #selector(cancelTapped)
+        )
+        navigationItem.leftBarButtonItem?.tintColor = NorthlightTheme.Colors.primary
         
         scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.showsVerticalScrollIndicator = false
         contentView.translatesAutoresizingMaskIntoConstraints = false
         
-        titleTextField.placeholder = "Bug title (required)"
-        titleTextField.borderStyle = .roundedRect
+        // Title field
+        titleTextField.placeholder = "Brief summary of the issue"
         titleTextField.translatesAutoresizingMaskIntoConstraints = false
+        titleTextField.applyNorthlightStyle()
         
-        descriptionLabel.text = "Description (required)"
-        descriptionLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
-        descriptionLabel.textColor = .label
+        // Description
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
+        updateDescriptionLabel()
         
-        descriptionTextView.layer.borderColor = UIColor.systemGray4.cgColor
-        descriptionTextView.layer.borderWidth = 1
-        descriptionTextView.layer.cornerRadius = 8
-        descriptionTextView.font = UIFont.systemFont(ofSize: 16)
         descriptionTextView.translatesAutoresizingMaskIntoConstraints = false
+        descriptionTextView.applyNorthlightStyle()
+        descriptionTextView.text = "Describe what happened..."
+        descriptionTextView.textColor = NorthlightTheme.Colors.tertiaryLabel
+        descriptionTextView.delegate = self
         
+        // Severity
         severityLabel.text = "Severity"
-        severityLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
-        severityLabel.textColor = .label
+        severityLabel.font = NorthlightTheme.Typography.caption
+        severityLabel.textColor = NorthlightTheme.Colors.secondaryLabel
         severityLabel.translatesAutoresizingMaskIntoConstraints = false
         
+        // Configure segmented control with modern styling
         severitySegmentedControl.selectedSegmentIndex = 1
         severitySegmentedControl.translatesAutoresizingMaskIntoConstraints = false
+        severitySegmentedControl.backgroundColor = NorthlightTheme.Colors.secondaryBackground
+        severitySegmentedControl.selectedSegmentTintColor = NorthlightTheme.Colors.primary
         
+        let normalTextAttributes = [NSAttributedString.Key.foregroundColor: NorthlightTheme.Colors.label]
+        let selectedTextAttributes = [NSAttributedString.Key.foregroundColor: UIColor.white]
+        severitySegmentedControl.setTitleTextAttributes(normalTextAttributes, for: .normal)
+        severitySegmentedControl.setTitleTextAttributes(selectedTextAttributes, for: .selected)
+        
+        // Steps to reproduce
         stepsLabel.text = "Steps to Reproduce (optional)"
-        stepsLabel.font = UIFont.systemFont(ofSize: 14, weight: .medium)
-        stepsLabel.textColor = .label
+        stepsLabel.font = NorthlightTheme.Typography.caption
+        stepsLabel.textColor = NorthlightTheme.Colors.secondaryLabel
         stepsLabel.translatesAutoresizingMaskIntoConstraints = false
         
-        stepsTextView.layer.borderColor = UIColor.systemGray4.cgColor
-        stepsTextView.layer.borderWidth = 1
-        stepsTextView.layer.cornerRadius = 8
-        stepsTextView.font = UIFont.systemFont(ofSize: 16)
         stepsTextView.translatesAutoresizingMaskIntoConstraints = false
+        stepsTextView.applyNorthlightStyle()
+        stepsTextView.text = "1. \n2. \n3. "
+        stepsTextView.textColor = NorthlightTheme.Colors.tertiaryLabel
+        stepsTextView.delegate = self
         
-        emailTextField.placeholder = "Email (optional)"
-        emailTextField.borderStyle = .roundedRect
+        // Email field
+        let emailLabel = createLabel(text: "Email", isRequired: false)
+        emailTextField.placeholder = "your@email.com"
         emailTextField.keyboardType = .emailAddress
         emailTextField.autocapitalizationType = .none
         emailTextField.translatesAutoresizingMaskIntoConstraints = false
+        emailTextField.applyNorthlightStyle()
         
+        // Submit button
         submitButton.setTitle("Submit Bug Report", for: .normal)
-        submitButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .medium)
-        submitButton.backgroundColor = .systemRed
-        submitButton.setTitleColor(.white, for: .normal)
-        submitButton.layer.cornerRadius = 8
         submitButton.translatesAutoresizingMaskIntoConstraints = false
         submitButton.addTarget(self, action: #selector(submitTapped), for: .touchUpInside)
+        submitButton.applyNorthlightPrimaryStyle()
+        submitButton.backgroundColor = NorthlightTheme.Colors.error
         
+        // Activity indicator
         activityIndicator.translatesAutoresizingMaskIntoConstraints = false
         activityIndicator.hidesWhenStopped = true
+        activityIndicator.color = .white
         
+        // Add subviews
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
+        
+        let titleLabel = createLabel(text: "Title", isRequired: true)
+        contentView.addSubview(titleLabel)
         contentView.addSubview(titleTextField)
         contentView.addSubview(descriptionLabel)
         contentView.addSubview(descriptionTextView)
@@ -100,12 +135,44 @@ public class NorthlightBugReportViewController: UIViewController {
         contentView.addSubview(severitySegmentedControl)
         contentView.addSubview(stepsLabel)
         contentView.addSubview(stepsTextView)
+        contentView.addSubview(emailLabel)
         contentView.addSubview(emailTextField)
         contentView.addSubview(submitButton)
         contentView.addSubview(activityIndicator)
+        
+        updateConstraints(titleLabel: titleLabel, emailLabel: emailLabel)
+    }
+    
+    private func createLabel(text: String, isRequired: Bool) -> UILabel {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = NorthlightTheme.Typography.caption
+        label.textColor = NorthlightTheme.Colors.secondaryLabel
+        
+        if isRequired {
+            let attributedText = NSMutableAttributedString(string: text)
+            attributedText.append(NSAttributedString(string: " *", attributes: [.foregroundColor: NorthlightTheme.Colors.error]))
+            label.attributedText = attributedText
+        } else {
+            label.text = text
+        }
+        
+        return label
+    }
+    
+    private func updateDescriptionLabel() {
+        let attributedText = NSMutableAttributedString(string: "Description")
+        attributedText.append(NSAttributedString(string: " *", attributes: [.foregroundColor: NorthlightTheme.Colors.error]))
+        descriptionLabel.attributedText = attributedText
+        descriptionLabel.font = NorthlightTheme.Typography.caption
+        descriptionLabel.textColor = NorthlightTheme.Colors.secondaryLabel
     }
     
     private func setupConstraints() {
+        // This method is now empty as constraints are set in updateConstraints
+    }
+    
+    private func updateConstraints(titleLabel: UILabel, emailLabel: UILabel) {
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -118,47 +185,62 @@ public class NorthlightBugReportViewController: UIViewController {
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             
-            titleTextField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 20),
-            titleTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            titleTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            titleTextField.heightAnchor.constraint(equalToConstant: 44),
+            // Title section
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: NorthlightTheme.Spacing.large),
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: NorthlightTheme.Spacing.large),
+            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -NorthlightTheme.Spacing.large),
             
-            descriptionLabel.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 16),
-            descriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            titleTextField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: NorthlightTheme.Spacing.xSmall),
+            titleTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: NorthlightTheme.Spacing.large),
+            titleTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -NorthlightTheme.Spacing.large),
+            titleTextField.heightAnchor.constraint(equalToConstant: 48),
             
-            descriptionTextView.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 8),
-            descriptionTextView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            descriptionTextView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            // Description section
+            descriptionLabel.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: NorthlightTheme.Spacing.xLarge),
+            descriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: NorthlightTheme.Spacing.large),
+            descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -NorthlightTheme.Spacing.large),
+            
+            descriptionTextView.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: NorthlightTheme.Spacing.xSmall),
+            descriptionTextView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: NorthlightTheme.Spacing.large),
+            descriptionTextView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -NorthlightTheme.Spacing.large),
             descriptionTextView.heightAnchor.constraint(equalToConstant: 120),
             
-            severityLabel.topAnchor.constraint(equalTo: descriptionTextView.bottomAnchor, constant: 16),
-            severityLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            severityLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            // Severity section
+            severityLabel.topAnchor.constraint(equalTo: descriptionTextView.bottomAnchor, constant: NorthlightTheme.Spacing.xLarge),
+            severityLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: NorthlightTheme.Spacing.large),
+            severityLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -NorthlightTheme.Spacing.large),
             
-            severitySegmentedControl.topAnchor.constraint(equalTo: severityLabel.bottomAnchor, constant: 8),
-            severitySegmentedControl.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            severitySegmentedControl.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            severitySegmentedControl.topAnchor.constraint(equalTo: severityLabel.bottomAnchor, constant: NorthlightTheme.Spacing.xSmall),
+            severitySegmentedControl.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: NorthlightTheme.Spacing.large),
+            severitySegmentedControl.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -NorthlightTheme.Spacing.large),
+            severitySegmentedControl.heightAnchor.constraint(equalToConstant: 40),
             
-            stepsLabel.topAnchor.constraint(equalTo: severitySegmentedControl.bottomAnchor, constant: 16),
-            stepsLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            stepsLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            // Steps section
+            stepsLabel.topAnchor.constraint(equalTo: severitySegmentedControl.bottomAnchor, constant: NorthlightTheme.Spacing.xLarge),
+            stepsLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: NorthlightTheme.Spacing.large),
+            stepsLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -NorthlightTheme.Spacing.large),
             
-            stepsTextView.topAnchor.constraint(equalTo: stepsLabel.bottomAnchor, constant: 8),
-            stepsTextView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            stepsTextView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            stepsTextView.topAnchor.constraint(equalTo: stepsLabel.bottomAnchor, constant: NorthlightTheme.Spacing.xSmall),
+            stepsTextView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: NorthlightTheme.Spacing.large),
+            stepsTextView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -NorthlightTheme.Spacing.large),
             stepsTextView.heightAnchor.constraint(equalToConstant: 100),
             
-            emailTextField.topAnchor.constraint(equalTo: stepsTextView.bottomAnchor, constant: 16),
-            emailTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            emailTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            emailTextField.heightAnchor.constraint(equalToConstant: 44),
+            // Email section
+            emailLabel.topAnchor.constraint(equalTo: stepsTextView.bottomAnchor, constant: NorthlightTheme.Spacing.xLarge),
+            emailLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: NorthlightTheme.Spacing.large),
+            emailLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -NorthlightTheme.Spacing.large),
             
-            submitButton.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 32),
-            submitButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            submitButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            submitButton.heightAnchor.constraint(equalToConstant: 50),
-            submitButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -20),
+            emailTextField.topAnchor.constraint(equalTo: emailLabel.bottomAnchor, constant: NorthlightTheme.Spacing.xSmall),
+            emailTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: NorthlightTheme.Spacing.large),
+            emailTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -NorthlightTheme.Spacing.large),
+            emailTextField.heightAnchor.constraint(equalToConstant: 48),
+            
+            // Submit button
+            submitButton.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: NorthlightTheme.Spacing.xxLarge),
+            submitButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: NorthlightTheme.Spacing.large),
+            submitButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -NorthlightTheme.Spacing.large),
+            submitButton.heightAnchor.constraint(equalToConstant: 52),
+            submitButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -NorthlightTheme.Spacing.xxLarge),
             
             activityIndicator.centerXAnchor.constraint(equalTo: submitButton.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: submitButton.centerYAnchor)
@@ -191,7 +273,9 @@ public class NorthlightBugReportViewController: UIViewController {
             return
         }
         
-        guard let description = descriptionTextView.text, !description.isEmpty else {
+        guard let description = descriptionTextView.text, 
+              !description.isEmpty,
+              description != "Describe what happened..." else {
             showAlert(title: "Missing Description", message: "Please enter a description of the bug.")
             return
         }
@@ -274,6 +358,30 @@ public class NorthlightBugReportViewController: UIViewController {
         }
         
         showAlert(title: title, message: message)
+    }
+}
+
+// MARK: - UITextViewDelegate
+
+extension NorthlightBugReportViewController: UITextViewDelegate {
+    public func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView == descriptionTextView && textView.textColor == NorthlightTheme.Colors.tertiaryLabel {
+            textView.text = ""
+            textView.textColor = NorthlightTheme.Colors.label
+        } else if textView == stepsTextView && textView.text == "1. \n2. \n3. " {
+            textView.text = ""
+            textView.textColor = NorthlightTheme.Colors.label
+        }
+    }
+    
+    public func textViewDidEndEditing(_ textView: UITextView) {
+        if textView == descriptionTextView && textView.text.isEmpty {
+            textView.text = "Describe what happened..."
+            textView.textColor = NorthlightTheme.Colors.tertiaryLabel
+        } else if textView == stepsTextView && textView.text.isEmpty {
+            textView.text = "1. \n2. \n3. "
+            textView.textColor = NorthlightTheme.Colors.tertiaryLabel
+        }
     }
 }
 

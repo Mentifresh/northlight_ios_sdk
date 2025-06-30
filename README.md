@@ -106,7 +106,37 @@ try await Northlight.vote(feedbackId: "feedback_uuid")
 
 ## UI Components
 
-### UIKit
+### Quick Presentation (Recommended)
+
+The SDK provides unified methods that work in both UIKit and SwiftUI apps:
+
+```swift
+// Present feedback form - works anywhere!
+Northlight.presentFeedbackForm(
+    onSuccess: { feedbackId in
+        print("Feedback submitted: \(feedbackId)")
+    },
+    onCancel: {
+        print("User cancelled")
+    },
+    onError: { error in
+        print("Error: \(error)")
+    }
+)
+
+// Present bug report form - works anywhere!
+Northlight.presentBugReportForm(
+    onSuccess: { bugId in
+        print("Bug reported: \(bugId)")
+    }
+)
+```
+
+### Custom Integration
+
+For more control over the presentation, you can use the view controllers directly:
+
+#### UIKit
 
 ```swift
 // Present feedback form
@@ -119,7 +149,7 @@ let bugReportVC = Northlight.createBugReportViewController()
 present(bugReportVC, animated: true)
 ```
 
-### SwiftUI
+#### SwiftUI
 
 ```swift
 import SwiftUI

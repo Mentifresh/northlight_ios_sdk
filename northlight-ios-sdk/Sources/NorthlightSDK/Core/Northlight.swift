@@ -7,19 +7,26 @@ public final class Northlight {
     private var apiKey: String?
     private var userEmail: String?
     private var userIdentifier: String?
+    private var customBaseURL: String?
     
-    private let baseURL = "https://northlight.app/api/v1"
+    private let defaultBaseURL = "https://northlight.app/api/v1"
     private let version = "1.0.0"
     
     private init() {}
     
-    public static func configure(apiKey: String) {
+    public static func configure(apiKey: String, baseURL: String? = nil) {
         guard !apiKey.isEmpty else {
             print("[Northlight] Warning: Empty API key provided")
             return
         }
         shared.apiKey = apiKey
-        print("[Northlight] SDK configured with API key: \(String(apiKey.prefix(8)))...")
+        shared.customBaseURL = baseURL
+        
+        if let baseURL = baseURL {
+            print("[Northlight] SDK configured with API key: \(String(apiKey.prefix(8)))... and custom base URL: \(baseURL)")
+        } else {
+            print("[Northlight] SDK configured with API key: \(String(apiKey.prefix(8)))...")
+        }
     }
     
     public func setUserEmail(_ email: String?) {
@@ -50,7 +57,17 @@ public final class Northlight {
     }
     
     func getBaseURL() -> String {
-        return baseURL
+        if let customBaseURL = customBaseURL {
+            // Ensure the URL ends with /api/v1 if it doesn't already
+            if customBaseURL.hasSuffix("/api/v1") {
+                return customBaseURL
+            } else if customBaseURL.hasSuffix("/") {
+                return customBaseURL + "api/v1"
+            } else {
+                return customBaseURL + "/api/v1"
+            }
+        }
+        return defaultBaseURL
     }
     
     func getSDKVersion() -> String {

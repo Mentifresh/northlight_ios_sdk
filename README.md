@@ -43,6 +43,9 @@ import NorthlightSDK
 
 // In your AppDelegate or App struct
 Northlight.configure(apiKey: "your_api_key_here")
+
+// For development/testing with local server
+Northlight.configure(apiKey: "your_api_key_here", baseURL: "http://localhost:3000")
 ```
 
 ### 2. Set User Information (Optional)

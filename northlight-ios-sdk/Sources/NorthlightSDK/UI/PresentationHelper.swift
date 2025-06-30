@@ -20,23 +20,16 @@ extension Northlight {
                 let feedbackVC = NorthlightFeedbackViewController()
                 let navigationController = UINavigationController(rootViewController: feedbackVC)
                 
-                feedbackVC.delegate = PresentationDelegate(
-                    onSuccess: { feedbackId in
-                        navigationController.dismiss(animated: true) {
-                            onSuccess?(feedbackId)
-                        }
-                    },
-                    onCancel: {
-                        navigationController.dismiss(animated: true) {
-                            onCancel?()
-                        }
-                    },
-                    onError: { error in
-                        navigationController.dismiss(animated: true) {
-                            onError?(error)
-                        }
-                    }
+                let delegate = PresentationDelegate(
+                    navigationController: navigationController,
+                    onSuccess: onSuccess,
+                    onCancel: onCancel,
+                    onError: onError
                 )
+                
+                feedbackVC.delegate = delegate
+                // Keep a strong reference to the delegate
+                objc_setAssociatedObject(feedbackVC, "NorthlightDelegate", delegate, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
                 
                 topViewController.present(navigationController, animated: true)
             }
@@ -60,23 +53,16 @@ extension Northlight {
                 let bugReportVC = NorthlightBugReportViewController()
                 let navigationController = UINavigationController(rootViewController: bugReportVC)
                 
-                bugReportVC.delegate = BugReportPresentationDelegate(
-                    onSuccess: { bugId in
-                        navigationController.dismiss(animated: true) {
-                            onSuccess?(bugId)
-                        }
-                    },
-                    onCancel: {
-                        navigationController.dismiss(animated: true) {
-                            onCancel?()
-                        }
-                    },
-                    onError: { error in
-                        navigationController.dismiss(animated: true) {
-                            onError?(error)
-                        }
-                    }
+                let delegate = BugReportPresentationDelegate(
+                    navigationController: navigationController,
+                    onSuccess: onSuccess,
+                    onCancel: onCancel,
+                    onError: onError
                 )
+                
+                bugReportVC.delegate = delegate
+                // Keep a strong reference to the delegate
+                objc_setAssociatedObject(bugReportVC, "NorthlightDelegate", delegate, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
                 
                 topViewController.present(navigationController, animated: true)
             }
@@ -87,54 +73,68 @@ extension Northlight {
 // MARK: - Helper Classes
 
 private class PresentationDelegate: NSObject, NorthlightFeedbackViewControllerDelegate {
-    private let onSuccess: (String) -> Void
-    private let onCancel: () -> Void
-    private let onError: (Error) -> Void
+    private weak var navigationController: UINavigationController?
+    private let onSuccess: ((String) -> Void)?
+    private let onCancel: (() -> Void)?
+    private let onError: ((Error) -> Void)?
     
-    init(onSuccess: @escaping (String) -> Void,
-         onCancel: @escaping () -> Void,
-         onError: @escaping (Error) -> Void) {
+    init(navigationController: UINavigationController,
+         onSuccess: ((String) -> Void)?,
+         onCancel: (() -> Void)?,
+         onError: ((Error) -> Void)?) {
+        self.navigationController = navigationController
         self.onSuccess = onSuccess
         self.onCancel = onCancel
         self.onError = onError
     }
     
     func feedbackViewController(_ controller: NorthlightFeedbackViewController, didSubmitFeedbackWithId feedbackId: String) {
-        onSuccess(feedbackId)
+        navigationController?.dismiss(animated: true) {
+            self.onSuccess?(feedbackId)
+        }
     }
     
     func feedbackViewControllerDidCancel(_ controller: NorthlightFeedbackViewController) {
-        onCancel()
+        navigationController?.dismiss(animated: true) {
+            self.onCancel?()
+        }
     }
     
     func feedbackViewController(_ controller: NorthlightFeedbackViewController, didFailWithError error: Error) {
-        onError(error)
+        self.onError?(error)
     }
 }
 
 private class BugReportPresentationDelegate: NSObject, NorthlightBugReportViewControllerDelegate {
-    private let onSuccess: (String) -> Void
-    private let onCancel: () -> Void
-    private let onError: (Error) -> Void
+    private weak var navigationController: UINavigationController?
+    private let onSuccess: ((String) -> Void)?
+    private let onCancel: (() -> Void)?
+    private let onError: ((Error) -> Void)?
     
-    init(onSuccess: @escaping (String) -> Void,
-         onCancel: @escaping () -> Void,
-         onError: @escaping (Error) -> Void) {
+    init(navigationController: UINavigationController,
+         onSuccess: ((String) -> Void)?,
+         onCancel: (() -> Void)?,
+         onError: ((Error) -> Void)?) {
+        self.navigationController = navigationController
         self.onSuccess = onSuccess
         self.onCancel = onCancel
         self.onError = onError
     }
     
     func bugReportViewController(_ controller: NorthlightBugReportViewController, didSubmitBugWithId bugId: String) {
-        onSuccess(bugId)
+        navigationController?.dismiss(animated: true) {
+            self.onSuccess?(bugId)
+        }
     }
     
     func bugReportViewControllerDidCancel(_ controller: NorthlightBugReportViewController) {
-        onCancel()
+        navigationController?.dismiss(animated: true) {
+            self.onCancel?()
+        }
     }
     
     func bugReportViewController(_ controller: NorthlightBugReportViewController, didFailWithError error: Error) {
-        onError(error)
+        self.onError?(error)
     }
 }
 

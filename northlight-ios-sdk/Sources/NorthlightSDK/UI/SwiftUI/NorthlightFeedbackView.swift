@@ -33,7 +33,7 @@ public struct NorthlightFeedbackView: View {
                 VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xLarge) {
                     // Title Section
                     VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
-                        Label("Title", isRequired: true)
+                        NorthlightLabel(text: "Title", isRequired: true)
                         
                         TextField("What's your feedback about?", text: $title)
                             .textFieldStyle(NorthlightTextFieldStyle())
@@ -42,7 +42,7 @@ public struct NorthlightFeedbackView: View {
                     
                     // Description Section
                     VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
-                        Label("Description", isRequired: true)
+                        NorthlightLabel(text: "Description", isRequired: true)
                         
                         ZStack(alignment: .topLeading) {
                             TextEditor(text: $description)
@@ -67,7 +67,7 @@ public struct NorthlightFeedbackView: View {
                     
                     // Category Section
                     VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
-                        Label("Category", isRequired: false)
+                        NorthlightLabel(text: "Category", isRequired: false)
                         
                         Picker("Category", selection: $category) {
                             ForEach(categories, id: \.self) { category in
@@ -87,7 +87,7 @@ public struct NorthlightFeedbackView: View {
                     
                     // Email Section
                     VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
-                        Label("Email", isRequired: false)
+                        NorthlightLabel(text: "Email", isRequired: false)
                         
                         TextField("your@email.com", text: $email)
                             .textFieldStyle(NorthlightTextFieldStyle())
@@ -214,7 +214,7 @@ public struct NorthlightFeedbackView: View {
 // MARK: - Helper Views
 
 @available(iOS 14.0, *)
-struct Label: View {
+struct NorthlightLabel: View {
     let text: String
     let isRequired: Bool
     

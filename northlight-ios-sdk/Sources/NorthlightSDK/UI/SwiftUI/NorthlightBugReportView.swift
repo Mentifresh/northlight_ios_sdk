@@ -32,7 +32,7 @@ public struct NorthlightBugReportView: View {
                 VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xLarge) {
                     // Title Section
                     VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
-                        Label("Title", isRequired: true)
+                        NorthlightLabel(text: "Title", isRequired: true)
                         
                         TextField("Brief summary of the issue", text: $title)
                             .textFieldStyle(NorthlightTextFieldStyle())
@@ -41,7 +41,7 @@ public struct NorthlightBugReportView: View {
                     
                     // Description Section
                     VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
-                        Label("Description", isRequired: true)
+                        NorthlightLabel(text: "Description", isRequired: true)
                         
                         ZStack(alignment: .topLeading) {
                             TextEditor(text: $description)
@@ -82,7 +82,7 @@ public struct NorthlightBugReportView: View {
                     
                     // Steps to Reproduce Section
                     VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
-                        Label("Steps to Reproduce", isRequired: false)
+                        NorthlightLabel(text: "Steps to Reproduce", isRequired: false)
                         
                         ZStack(alignment: .topLeading) {
                             TextEditor(text: $stepsToReproduce)
@@ -107,7 +107,7 @@ public struct NorthlightBugReportView: View {
                     
                     // Email Section
                     VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
-                        Label("Email", isRequired: false)
+                        NorthlightLabel(text: "Email", isRequired: false)
                         
                         TextField("your@email.com", text: $email)
                             .textFieldStyle(NorthlightTextFieldStyle())

@@ -6,7 +6,7 @@ public enum NorthlightError: LocalizedError {
     case rateLimitExceeded
     case feedbackLimitReached
     case invalidInput(String)
-    case serverError(statusCode: Int)
+    case serverError(statusCode: Int, message: String?)
     case decodingError(Error)
     case missingUserIdentifier
     
@@ -22,8 +22,12 @@ public enum NorthlightError: LocalizedError {
             return "Feedback limit reached for free tier (maximum 5 items)."
         case .invalidInput(let message):
             return "Invalid input: \(message)"
-        case .serverError(let statusCode):
-            return "Server error with status code: \(statusCode)"
+        case .serverError(let statusCode, let message):
+            if let message = message {
+                return message
+            } else {
+                return "Server error with status code: \(statusCode)"
+            }
         case .decodingError(let error):
             return "Failed to decode response: \(error.localizedDescription)"
         case .missingUserIdentifier:

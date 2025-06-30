@@ -128,8 +128,30 @@ public struct NorthlightFeedbackView: View {
                 await MainActor.run {
                     isLoading = false
                     onError?(error)
-                    alertTitle = "Error"
-                    alertMessage = error.localizedDescription
+                    
+                    if let northlightError = error as? NorthlightError {
+                        switch northlightError {
+                        case .invalidAPIKey:
+                            alertTitle = "Configuration Error"
+                            alertMessage = "Invalid API key. Please check your Northlight configuration."
+                        case .rateLimitExceeded:
+                            alertTitle = "Rate Limit"
+                            alertMessage = "Too many requests. Please try again later."
+                        case .feedbackLimitReached:
+                            alertTitle = "Limit Reached"
+                            alertMessage = "You've reached the feedback limit for the free tier."
+                        case .networkError:
+                            alertTitle = "Network Error"
+                            alertMessage = "Please check your internet connection and try again."
+                        default:
+                            alertTitle = "Error"
+                            alertMessage = northlightError.errorDescription ?? "An unexpected error occurred."
+                        }
+                    } else {
+                        alertTitle = "Error"
+                        alertMessage = error.localizedDescription
+                    }
+                    
                     showingAlert = true
                 }
             }

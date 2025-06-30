@@ -51,12 +51,31 @@ class NetworkService {
                 } catch {
                     throw NorthlightError.decodingError(error)
                 }
+            case 401, 403:
+                // Try to parse error message from response
+                if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+                    throw NorthlightError.invalidInput(errorResponse.error)
+                } else {
+                    throw NorthlightError.invalidAPIKey
+                }
             case 429:
                 throw NorthlightError.rateLimitExceeded
             case 402:
                 throw NorthlightError.feedbackLimitReached
+            case 400:
+                // Try to parse error message from response
+                if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+                    throw NorthlightError.invalidInput(errorResponse.error)
+                } else {
+                    throw NorthlightError.invalidInput("Invalid request")
+                }
             default:
-                throw NorthlightError.serverError(statusCode: httpResponse.statusCode)
+                // Try to parse error message from response
+                if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+                    throw NorthlightError.serverError(statusCode: httpResponse.statusCode, message: errorResponse.error)
+                } else {
+                    throw NorthlightError.serverError(statusCode: httpResponse.statusCode, message: nil)
+                }
             }
         } catch let error as NorthlightError {
             throw error
@@ -84,7 +103,7 @@ class NetworkService {
         request.httpBody = body
         
         do {
-            let (_, response) = try await session.data(for: request)
+            let (data, response) = try await session.data(for: request)
             
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw NorthlightError.networkError(NSError(domain: "Invalid response", code: 0))
@@ -93,12 +112,31 @@ class NetworkService {
             switch httpResponse.statusCode {
             case 200...299:
                 return
+            case 401, 403:
+                // Try to parse error message from response
+                if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+                    throw NorthlightError.invalidInput(errorResponse.error)
+                } else {
+                    throw NorthlightError.invalidAPIKey
+                }
             case 429:
                 throw NorthlightError.rateLimitExceeded
             case 402:
                 throw NorthlightError.feedbackLimitReached
+            case 400:
+                // Try to parse error message from response
+                if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+                    throw NorthlightError.invalidInput(errorResponse.error)
+                } else {
+                    throw NorthlightError.invalidInput("Invalid request")
+                }
             default:
-                throw NorthlightError.serverError(statusCode: httpResponse.statusCode)
+                // Try to parse error message from response
+                if let errorResponse = try? JSONDecoder().decode(ErrorResponse.self, from: data) {
+                    throw NorthlightError.serverError(statusCode: httpResponse.statusCode, message: errorResponse.error)
+                } else {
+                    throw NorthlightError.serverError(statusCode: httpResponse.statusCode, message: nil)
+                }
             }
         } catch let error as NorthlightError {
             throw error

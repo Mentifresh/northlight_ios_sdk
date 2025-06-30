@@ -221,6 +221,7 @@ public class NorthlightBugReportViewController: UIViewController {
             } catch {
                 await MainActor.run {
                     setLoadingState(false)
+                    showError(error)
                     delegate?.bugReportViewController(self, didFailWithError: error)
                 }
             }
@@ -243,6 +244,36 @@ public class NorthlightBugReportViewController: UIViewController {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
+    }
+    
+    private func showError(_ error: Error) {
+        let title: String
+        let message: String
+        
+        if let northlightError = error as? NorthlightError {
+            switch northlightError {
+            case .invalidAPIKey:
+                title = "Configuration Error"
+                message = "Invalid API key. Please check your Northlight configuration."
+            case .rateLimitExceeded:
+                title = "Rate Limit"
+                message = "Too many requests. Please try again later."
+            case .feedbackLimitReached:
+                title = "Limit Reached"
+                message = "You've reached the limit for the free tier."
+            case .networkError:
+                title = "Network Error"
+                message = "Please check your internet connection and try again."
+            default:
+                title = "Error"
+                message = northlightError.errorDescription ?? "An unexpected error occurred."
+            }
+        } else {
+            title = "Error"
+            message = error.localizedDescription
+        }
+        
+        showAlert(title: title, message: message)
     }
 }
 

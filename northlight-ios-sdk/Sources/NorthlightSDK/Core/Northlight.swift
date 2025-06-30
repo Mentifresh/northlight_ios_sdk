@@ -226,7 +226,7 @@ extension Northlight {
     
     public static func getPublicFeedback() async throws -> [Feedback] {
         let response = try await NetworkService.shared.request(
-            "/feedback?status=approved,suggested",
+            "/feedback",
             responseType: FeedbackListResponse.self
         )
         

@@ -101,6 +101,9 @@ public struct PublicFeedbackView: View {
             .padding(.top, NorthlightTheme.Spacing.medium)
             .padding(.bottom, 100) // Space for button
         }
+        .refreshable {
+            await loadFeedbackAsync()
+        }
     }
     
     private var submitButton: some View {

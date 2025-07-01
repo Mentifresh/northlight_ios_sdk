@@ -400,7 +400,7 @@ struct StatusBadge: View {
             .font(.system(size: 11, weight: .medium))
             .foregroundColor(Color(NorthlightTheme.Colors.label))
             .padding(.horizontal, 12)
-            .padding(.vertical, 6)
+            .padding(.vertical, 8)
             .background(backgroundColor.opacity(0.9))
             .overlay(
                 RoundedRectangle(cornerRadius: 6)

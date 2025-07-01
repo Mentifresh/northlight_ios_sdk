@@ -65,7 +65,7 @@ class FeedbackCell: UITableViewCell {
         // Vote button
         voteButton.translatesAutoresizingMaskIntoConstraints = false
         voteButton.setImage(UIImage(systemName: "hand.thumbsup"), for: .normal)
-        voteButton.tintColor = NorthlightTheme.Colors.primary
+        voteButton.tintColor = NorthlightTheme.Colors.secondaryLabel
         voteButton.backgroundColor = NorthlightTheme.Colors.background
         voteButton.layer.cornerRadius = NorthlightTheme.CornerRadius.small
         voteButton.layer.borderWidth = 1
@@ -123,6 +123,7 @@ class FeedbackCell: UITableViewCell {
             statusLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: NorthlightTheme.Spacing.small),
             statusLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: NorthlightTheme.Spacing.medium),
             statusLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -NorthlightTheme.Spacing.medium),
+            statusLabel.heightAnchor.constraint(equalToConstant: 28),
             
             categoryLabel.centerYAnchor.constraint(equalTo: statusLabel.centerYAnchor),
             categoryLabel.leadingAnchor.constraint(equalTo: statusLabel.trailingAnchor, constant: NorthlightTheme.Spacing.small),
@@ -149,7 +150,19 @@ class FeedbackCell: UITableViewCell {
         let statusText = feedback.status.split(separator: " ")
             .map { $0.capitalized }
             .joined(separator: " ")
-        statusLabel.text = "   \(statusText)   "  // Add more padding with spaces
+        
+        // Add padding with NSAttributedString
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .center
+        
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 11, weight: .medium),
+            .foregroundColor: NorthlightTheme.Colors.label,
+            .paragraphStyle: paragraphStyle
+        ]
+        
+        let attributedString = NSAttributedString(string: "  \(statusText)  ", attributes: attributes)
+        statusLabel.attributedText = attributedString
         
         // Update status label border color to match background
         statusLabel.layer.borderColor = statusLabel.backgroundColor?.cgColor

@@ -11,6 +11,8 @@ public struct PublicFeedbackView: View {
     @State private var showingAlert = false
     @State private var alertTitle = ""
     @State private var alertMessage = ""
+    @State private var selectedFeedback: Feedback?
+    @State private var showingFeedbackDetail = false
     
     enum StatusFilter: CaseIterable {
         case all
@@ -83,7 +85,7 @@ public struct PublicFeedbackView: View {
                         submitButton
                             .padding(.horizontal, NorthlightTheme.Spacing.large)
                             .padding(.top, NorthlightTheme.Spacing.medium)
-                            .padding(.bottom, NorthlightTheme.Spacing.medium)
+                            .padding(.bottom, NorthlightTheme.Spacing.xLarge)
                     }
                     .background(
                         Color(NorthlightTheme.Colors.background)
@@ -145,6 +147,20 @@ public struct PublicFeedbackView: View {
                 }
             )
         }
+        .sheet(isPresented: $showingFeedbackDetail) {
+            if let feedback = selectedFeedback {
+                NavigationView {
+                    FeedbackDetailView(
+                        feedback: feedback,
+                        hasVoted: .constant(votedFeedbackIds.contains(feedback.id)),
+                        onVote: {
+                            showingFeedbackDetail = false
+                            voteFeedback(feedback)
+                        }
+                    )
+                }
+            }
+        }
     }
     
     private var emptyStateView: some View {
@@ -168,6 +184,10 @@ public struct PublicFeedbackView: View {
                         hasVoted: votedFeedbackIds.contains(feedback.id),
                         onVote: {
                             voteFeedback(feedback)
+                        },
+                        onTap: {
+                            selectedFeedback = feedback
+                            showingFeedbackDetail = true
                         }
                     )
                     .padding(.horizontal, NorthlightTheme.Spacing.medium)
@@ -275,10 +295,10 @@ public struct PublicFeedbackView: View {
                 alertMessage = String(localized: "error.network.message")
             default:
                 alertTitle = String(localized: "error.generic.title")
-                alertMessage = northlightError.errorDescription ?? "An unexpected error occurred."
+                alertMessage = northlightError.errorDescription ?? String(localized: "error.generic.message")
             }
         } else {
-            alertTitle = "Error"
+            alertTitle = String(localized: "error.generic.title")
             alertMessage = error.localizedDescription
         }
         showingAlert = true
@@ -329,6 +349,7 @@ struct FeedbackRow: View {
     let feedback: Feedback
     let hasVoted: Bool
     let onVote: () -> Void
+    let onTap: () -> Void
     
     var body: some View {
         HStack(alignment: .top, spacing: NorthlightTheme.Spacing.medium) {
@@ -389,6 +410,10 @@ struct FeedbackRow: View {
             RoundedRectangle(cornerRadius: NorthlightTheme.CornerRadius.large)
                 .stroke(Color(NorthlightTheme.Colors.border), lineWidth: 1)
         )
+        .contentShape(Rectangle())
+        .onTapGesture {
+            onTap()
+        }
     }
 }
 

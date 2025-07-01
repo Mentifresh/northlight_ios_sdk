@@ -72,7 +72,7 @@ public struct NorthlightFeedbackView: View {
                         
                         Picker("Category", selection: $category) {
                             ForEach(categories, id: \.self) { category in
-                                Text(category.isEmpty ? "Select a category" : category).tag(category)
+                                Text(category.isEmpty ? String(localized: "feedback.form.category.placeholder") : category).tag(category)
                             }
                         }
                         .pickerStyle(MenuPickerStyle())

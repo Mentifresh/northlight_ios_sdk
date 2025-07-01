@@ -339,7 +339,7 @@ struct FeedbackRow: View {
             
             VStack(spacing: NorthlightTheme.Spacing.xSmall) {
                 Button(action: onVote) {
-                    Image(systemName: "hand.thumbsup")
+                    Image(systemName: hasVoted ? "hand.thumbsup.fill" : "hand.thumbsup")
                         .font(.system(size: 18, weight: .medium))
                         .foregroundColor(hasVoted ? Color(NorthlightTheme.Colors.primary) : Color(NorthlightTheme.Colors.secondaryLabel))
                         .frame(width: 44, height: 44)
@@ -400,7 +400,7 @@ struct StatusBadge: View {
             .font(.system(size: 11, weight: .medium))
             .foregroundColor(Color(NorthlightTheme.Colors.label))
             .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+            .padding(.vertical, 7)
             .background(backgroundColor.opacity(0.9))
             .overlay(
                 RoundedRectangle(cornerRadius: 6)

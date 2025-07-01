@@ -1,5 +1,19 @@
 import UIKit
 
+class PaddedLabel: UILabel {
+    var textInsets = UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 12)
+    
+    override func drawText(in rect: CGRect) {
+        super.drawText(in: rect.inset(by: textInsets))
+    }
+    
+    override var intrinsicContentSize: CGSize {
+        let size = super.intrinsicContentSize
+        return CGSize(width: size.width + textInsets.left + textInsets.right,
+                      height: size.height + textInsets.top + textInsets.bottom)
+    }
+}
+
 class FeedbackCell: UITableViewCell {
     
     static let identifier = "FeedbackCell"
@@ -10,7 +24,7 @@ class FeedbackCell: UITableViewCell {
     private let titleLabel = UILabel()
     private let descriptionLabel = UILabel()
     private let categoryLabel = UILabel()
-    private let statusLabel = UILabel()
+    private let statusLabel = PaddedLabel()
     private let voteButton = UIButton(type: .system)
     private let voteCountLabel = UILabel()
     private let dateLabel = UILabel()
@@ -123,7 +137,6 @@ class FeedbackCell: UITableViewCell {
             statusLabel.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: NorthlightTheme.Spacing.small),
             statusLabel.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: NorthlightTheme.Spacing.medium),
             statusLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -NorthlightTheme.Spacing.medium),
-            statusLabel.heightAnchor.constraint(equalToConstant: 28),
             
             categoryLabel.centerYAnchor.constraint(equalTo: statusLabel.centerYAnchor),
             categoryLabel.leadingAnchor.constraint(equalTo: statusLabel.trailingAnchor, constant: NorthlightTheme.Spacing.small),
@@ -161,7 +174,7 @@ class FeedbackCell: UITableViewCell {
             .paragraphStyle: paragraphStyle
         ]
         
-        let attributedString = NSAttributedString(string: "  \(statusText)  ", attributes: attributes)
+        let attributedString = NSAttributedString(string: statusText, attributes: attributes)
         statusLabel.attributedText = attributedString
         
         // Update status label border color to match background
@@ -196,6 +209,7 @@ class FeedbackCell: UITableViewCell {
         
         // Update vote button state
         if hasVoted {
+            voteButton.setImage(UIImage(systemName: "hand.thumbsup.fill"), for: .normal)
             voteButton.backgroundColor = NorthlightTheme.Colors.background
             voteButton.tintColor = NorthlightTheme.Colors.primary
             voteButton.layer.borderColor = NorthlightTheme.Colors.primary.cgColor
@@ -203,6 +217,7 @@ class FeedbackCell: UITableViewCell {
             voteButton.isEnabled = false
             voteCountLabel.textColor = NorthlightTheme.Colors.primary
         } else {
+            voteButton.setImage(UIImage(systemName: "hand.thumbsup"), for: .normal)
             voteButton.backgroundColor = NorthlightTheme.Colors.background
             voteButton.tintColor = NorthlightTheme.Colors.secondaryLabel
             voteButton.layer.borderColor = NorthlightTheme.Colors.border.cgColor

@@ -250,18 +250,34 @@ public struct PublicFeedbackView: View {
     }
     
     private func sortFeedbackByStatus(_ feedback: [Feedback]) -> [Feedback] {
-        let statusOrder: [String] = ["pending", "suggested", "approved", "in_progress", "completed", "rejected"]
+        // Status priority for tiebreakers (lower number = higher priority)
+        let statusPriority: [String: Int] = [
+            "in_progress": 1,
+            "approved": 2,
+            "suggested": 3,
+            "pending": 4,
+            "rejected": 5,
+            "completed": 6  // Always at bottom
+        ]
         
         return feedback.sorted { first, second in
-            let firstIndex = statusOrder.firstIndex(of: first.status.lowercased()) ?? Int.max
-            let secondIndex = statusOrder.firstIndex(of: second.status.lowercased()) ?? Int.max
+            // Completed items always go to bottom
+            if first.status.lowercased() == "completed" && second.status.lowercased() != "completed" {
+                return false
+            }
+            if first.status.lowercased() != "completed" && second.status.lowercased() == "completed" {
+                return true
+            }
             
-            if firstIndex != secondIndex {
-                return firstIndex < secondIndex
-            } else {
-                // If same status, sort by vote count
+            // Sort by vote count first (higher votes first)
+            if first.voteCount != second.voteCount {
                 return first.voteCount > second.voteCount
             }
+            
+            // If vote counts are equal, sort by status priority
+            let firstPriority = statusPriority[first.status.lowercased()] ?? Int.max
+            let secondPriority = statusPriority[second.status.lowercased()] ?? Int.max
+            return firstPriority < secondPriority
         }
     }
     

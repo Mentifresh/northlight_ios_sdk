@@ -259,3 +259,7 @@ struct NorthlightTextFieldStyle: TextFieldStyle {
             )
     }
 }
+
+#Preview {
+    NorthlightFeedbackView()
+}

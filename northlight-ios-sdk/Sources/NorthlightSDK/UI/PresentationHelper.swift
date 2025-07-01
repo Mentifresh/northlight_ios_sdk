@@ -24,7 +24,34 @@ extension Northlight {
         )
     }
     
-    /// Presents a bug report form modally. Automatically detects whether to use UIKit or SwiftUI presentation.
+    /// Presents the public feedback view showing existing feedback with voting
+    /// - Parameters:
+    ///   - onNewFeedback: Called when user wants to submit new feedback
+    ///   - onCancel: Called when the user cancels
+    public static func presentPublicFeedback(
+        onNewFeedback: (() -> Void)? = nil,
+        onCancel: (() -> Void)? = nil
+    ) {
+        DispatchQueue.main.async {
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let topViewController = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController?.topMostViewController() {
+                
+                let swiftUIView = PublicFeedbackView(
+                    onNewFeedbackSubmitted: { feedbackId in
+                        onNewFeedback?()
+                    },
+                    onCancel: onCancel
+                )
+                
+                let hostingController = UIHostingController(rootView: swiftUIView)
+                hostingController.modalPresentationStyle = .fullScreen
+                
+                topViewController.present(hostingController, animated: true)
+            }
+        }
+    }
+    
+    /// Presents a bug report form modally
     /// - Parameters:
     ///   - onSuccess: Called when bug report is successfully submitted with the bug ID
     ///   - onCancel: Called when the user cancels the bug report form
@@ -38,91 +65,20 @@ extension Northlight {
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                let topViewController = windowScene.windows.first(where: { $0.isKeyWindow })?.rootViewController?.topMostViewController() {
                 
-                let bugReportVC = NorthlightBugReportViewController()
-                let navigationController = UINavigationController(rootViewController: bugReportVC)
-                
-                let delegate = BugReportPresentationDelegate(
-                    navigationController: navigationController,
-                    onSuccess: onSuccess,
+                let swiftUIView = NorthlightBugReportView(
+                    onSuccess: { bugId in
+                        onSuccess?(bugId)
+                    },
                     onCancel: onCancel,
                     onError: onError
                 )
                 
-                bugReportVC.delegate = delegate
-                // Keep a strong reference to the delegate
-                objc_setAssociatedObject(bugReportVC, "NorthlightDelegate", delegate, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+                let hostingController = UIHostingController(rootView: swiftUIView)
+                hostingController.modalPresentationStyle = .fullScreen
                 
-                topViewController.present(navigationController, animated: true)
+                topViewController.present(hostingController, animated: true)
             }
         }
-    }
-}
-
-// MARK: - Helper Classes
-
-private class PresentationDelegate: NSObject, NorthlightFeedbackViewControllerDelegate {
-    private weak var navigationController: UINavigationController?
-    private let onSuccess: ((String) -> Void)?
-    private let onCancel: (() -> Void)?
-    private let onError: ((Error) -> Void)?
-    
-    init(navigationController: UINavigationController,
-         onSuccess: ((String) -> Void)?,
-         onCancel: (() -> Void)?,
-         onError: ((Error) -> Void)?) {
-        self.navigationController = navigationController
-        self.onSuccess = onSuccess
-        self.onCancel = onCancel
-        self.onError = onError
-    }
-    
-    func feedbackViewController(_ controller: NorthlightFeedbackViewController, didSubmitFeedbackWithId feedbackId: String) {
-        navigationController?.dismiss(animated: true) {
-            self.onSuccess?(feedbackId)
-        }
-    }
-    
-    func feedbackViewControllerDidCancel(_ controller: NorthlightFeedbackViewController) {
-        navigationController?.dismiss(animated: true) {
-            self.onCancel?()
-        }
-    }
-    
-    func feedbackViewController(_ controller: NorthlightFeedbackViewController, didFailWithError error: Error) {
-        self.onError?(error)
-    }
-}
-
-private class BugReportPresentationDelegate: NSObject, NorthlightBugReportViewControllerDelegate {
-    private weak var navigationController: UINavigationController?
-    private let onSuccess: ((String) -> Void)?
-    private let onCancel: (() -> Void)?
-    private let onError: ((Error) -> Void)?
-    
-    init(navigationController: UINavigationController,
-         onSuccess: ((String) -> Void)?,
-         onCancel: (() -> Void)?,
-         onError: ((Error) -> Void)?) {
-        self.navigationController = navigationController
-        self.onSuccess = onSuccess
-        self.onCancel = onCancel
-        self.onError = onError
-    }
-    
-    func bugReportViewController(_ controller: NorthlightBugReportViewController, didSubmitBugWithId bugId: String) {
-        navigationController?.dismiss(animated: true) {
-            self.onSuccess?(bugId)
-        }
-    }
-    
-    func bugReportViewControllerDidCancel(_ controller: NorthlightBugReportViewController) {
-        navigationController?.dismiss(animated: true) {
-            self.onCancel?()
-        }
-    }
-    
-    func bugReportViewController(_ controller: NorthlightBugReportViewController, didFailWithError error: Error) {
-        self.onError?(error)
     }
 }
 

@@ -409,3 +409,7 @@ struct StatusBadge: View {
             .cornerRadius(6)
     }
 }
+
+#Preview {
+    PublicFeedbackView()
+}

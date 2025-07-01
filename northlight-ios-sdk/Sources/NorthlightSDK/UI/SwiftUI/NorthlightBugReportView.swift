@@ -230,3 +230,7 @@ public struct NorthlightBugReportView: View {
         }
     }
 }
+
+#Preview {
+    NorthlightBugReportView()
+}

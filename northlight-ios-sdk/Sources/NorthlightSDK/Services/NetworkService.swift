@@ -30,9 +30,6 @@ class NetworkService {
             throw NorthlightError.invalidInput("Invalid URL")
         }
         
-        print("[Northlight] Request URL: \(url)")
-        print("[Northlight] Method: \(method.rawValue)")
-        print("[Northlight] API Key: \(String(apiKey.prefix(8)))...")
         
         var request = URLRequest(url: url)
         request.httpMethod = method.rawValue
@@ -41,9 +38,6 @@ class NetworkService {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = body
         
-        if let body = body, let bodyString = String(data: body, encoding: .utf8) {
-            print("[Northlight] Request Body: \(bodyString)")
-        }
         
         do {
             let (data, response) = try await session.data(for: request)
@@ -52,10 +46,6 @@ class NetworkService {
                 throw NorthlightError.networkError(NSError(domain: "Invalid response", code: 0))
             }
             
-            print("[Northlight] Response Status: \(httpResponse.statusCode)")
-            if let responseString = String(data: data, encoding: .utf8) {
-                print("[Northlight] Response Body: \(responseString)")
-            }
             
             switch httpResponse.statusCode {
             case 200...299:
@@ -123,10 +113,6 @@ class NetworkService {
                 throw NorthlightError.networkError(NSError(domain: "Invalid response", code: 0))
             }
             
-            print("[Northlight] Response Status: \(httpResponse.statusCode)")
-            if let responseString = String(data: data, encoding: .utf8) {
-                print("[Northlight] Response Body: \(responseString)")
-            }
             
             switch httpResponse.statusCode {
             case 200...299:

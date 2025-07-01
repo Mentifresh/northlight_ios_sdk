@@ -91,7 +91,12 @@ public struct PublicFeedbackView: View {
                                 selectedStatusFilter = filter
                                 applyFilter()
                             }) {
-                                Label(filter.rawValue, systemImage: selectedStatusFilter == filter ? "checkmark" : "")
+                                HStack {
+                                    if selectedStatusFilter == filter {
+                                        Image(systemName: "checkmark")
+                                    }
+                                    Text(filter.rawValue)
+                                }
                             }
                         }
                     } label: {
@@ -400,7 +405,7 @@ struct StatusBadge: View {
             .font(.system(size: 11, weight: .medium))
             .foregroundColor(Color(NorthlightTheme.Colors.label))
             .padding(.horizontal, 12)
-            .padding(.vertical, 7)
+            .padding(.vertical, 4)
             .background(backgroundColor.opacity(0.9))
             .overlay(
                 RoundedRectangle(cornerRadius: 6)
@@ -411,212 +416,5 @@ struct StatusBadge: View {
 }
 
 #Preview {
-    // Create a preview version with mock data
-    struct PreviewPublicFeedbackView: View {
-        @State private var feedbackItems: [Feedback] = [
-            Feedback(
-                id: "1",
-                projectId: "preview",
-                title: "Dark Mode Support",
-                description: "It would be great to have a dark mode option for the app. This would help reduce eye strain during night time usage.",
-                status: "in_progress",
-                category: "UI/UX",
-                platform: "ios",
-                userEmail: nil,
-                deviceInfo: nil,
-                voteCount: 42,
-                createdAt: "2024-01-15T10:30:00Z",
-                updatedAt: "2024-01-15T10:30:00Z"
-            ),
-            Feedback(
-                id: "2",
-                projectId: "preview",
-                title: "Export to PDF",
-                description: "Add ability to export reports as PDF files for sharing with team members.",
-                status: "approved",
-                category: "Feature Request",
-                platform: "ios",
-                userEmail: nil,
-                deviceInfo: nil,
-                voteCount: 38,
-                createdAt: "2024-01-14T09:00:00Z",
-                updatedAt: "2024-01-14T09:00:00Z"
-            ),
-            Feedback(
-                id: "3",
-                projectId: "preview",
-                title: "Offline Mode",
-                description: "Allow users to work offline and sync when connection is restored.",
-                status: "suggested",
-                category: "Feature Request",
-                platform: "ios",
-                userEmail: nil,
-                deviceInfo: nil,
-                voteCount: 25,
-                createdAt: "2024-01-13T14:20:00Z",
-                updatedAt: "2024-01-13T14:20:00Z"
-            ),
-            Feedback(
-                id: "4",
-                projectId: "preview",
-                title: "Widget Support",
-                description: "Add iOS home screen widgets for quick access to key features.",
-                status: "pending",
-                category: "Feature Request",
-                platform: "ios",
-                userEmail: nil,
-                deviceInfo: nil,
-                voteCount: 15,
-                createdAt: "2024-01-12T11:45:00Z",
-                updatedAt: "2024-01-12T11:45:00Z"
-            ),
-            Feedback(
-                id: "5",
-                projectId: "preview",
-                title: "iPad Landscape Mode",
-                description: "The app doesn't properly support landscape orientation on iPad.",
-                status: "completed",
-                category: "Bug",
-                platform: "ios",
-                userEmail: nil,
-                deviceInfo: nil,
-                voteCount: 8,
-                createdAt: "2024-01-10T16:30:00Z",
-                updatedAt: "2024-01-11T10:00:00Z"
-            )
-        ]
-        @State private var votedFeedbackIds: Set<String> = ["2", "3"]
-        @State private var showingNewFeedback = false
-        @State private var selectedStatusFilter: StatusFilter = .all
-        
-        enum StatusFilter: String, CaseIterable {
-            case all = "All"
-            case pending = "Pending"
-            case suggested = "Suggested"
-            case approved = "Approved"
-            case inProgress = "In Progress"
-            case completed = "Completed"
-            case rejected = "Rejected"
-            
-            var statusValue: String? {
-                switch self {
-                case .all: return nil
-                case .pending: return "pending"
-                case .suggested: return "suggested"
-                case .approved: return "approved"
-                case .inProgress: return "in_progress"
-                case .completed: return "completed"
-                case .rejected: return "rejected"
-                }
-            }
-        }
-        
-        var filteredFeedbackItems: [Feedback] {
-            if let statusValue = selectedStatusFilter.statusValue {
-                return feedbackItems.filter { $0.status.lowercased() == statusValue }
-            } else {
-                return feedbackItems
-            }
-        }
-        
-        var body: some View {
-            NavigationView {
-                ZStack {
-                    Color(NorthlightTheme.Colors.background)
-                        .ignoresSafeArea()
-                    
-                    if filteredFeedbackItems.isEmpty {
-                        VStack(spacing: NorthlightTheme.Spacing.medium) {
-                            Text("No feature requests yet")
-                                .font(NorthlightTheme.Typography.headlineSwiftUI)
-                                .foregroundColor(Color(NorthlightTheme.Colors.label))
-                            
-                            Text("Be the first to submit one!")
-                                .font(NorthlightTheme.Typography.bodySwiftUI)
-                                .foregroundColor(Color(NorthlightTheme.Colors.secondaryLabel))
-                        }
-                    } else {
-                        ScrollView {
-                            LazyVStack(spacing: NorthlightTheme.Spacing.small) {
-                                ForEach(filteredFeedbackItems, id: \.id) { feedback in
-                                    FeedbackRow(
-                                        feedback: feedback,
-                                        hasVoted: votedFeedbackIds.contains(feedback.id),
-                                        onVote: {
-                                            if !votedFeedbackIds.contains(feedback.id) {
-                                                votedFeedbackIds.insert(feedback.id)
-                                            }
-                                        }
-                                    )
-                                    .padding(.horizontal, NorthlightTheme.Spacing.medium)
-                                }
-                            }
-                            .padding(.top, NorthlightTheme.Spacing.medium)
-                            .padding(.bottom, 100)
-                        }
-                    }
-                    
-                    VStack {
-                        Spacer()
-                        VStack(spacing: 0) {
-                            Button(action: {
-                                showingNewFeedback = true
-                            }) {
-                                Text("Submit New Feature Request")
-                                    .font(NorthlightTheme.Typography.headlineSwiftUI)
-                                    .foregroundColor(Color(NorthlightTheme.Colors.buttonText))
-                                    .frame(maxWidth: .infinity)
-                                    .frame(height: 52)
-                                    .background(Color(NorthlightTheme.Colors.buttonBackground))
-                                    .cornerRadius(NorthlightTheme.CornerRadius.button)
-                                    .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 2)
-                            }
-                            .padding(.horizontal, NorthlightTheme.Spacing.large)
-                            .padding(.top, NorthlightTheme.Spacing.medium)
-                            .padding(.bottom, NorthlightTheme.Spacing.medium)
-                        }
-                        .background(
-                            Color(NorthlightTheme.Colors.background)
-                                .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: -5)
-                        )
-                    }
-                    .ignoresSafeArea(edges: .bottom)
-                }
-                .navigationTitle("Feature Requests")
-                .navigationBarTitleDisplayMode(.large)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button("Close") {
-                            // Preview action
-                        }
-                        .foregroundColor(Color(NorthlightTheme.Colors.primary))
-                    }
-                    
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Menu {
-                            ForEach(StatusFilter.allCases, id: \.self) { filter in
-                                Button(action: {
-                                    selectedStatusFilter = filter
-                                }) {
-                                    Label(filter.rawValue, systemImage: selectedStatusFilter == filter ? "checkmark" : "")
-                                }
-                            }
-                        } label: {
-                            Image(systemName: "line.horizontal.3.decrease.circle")
-                                .foregroundColor(Color(NorthlightTheme.Colors.primary))
-                        }
-                    }
-                }
-            }
-            .sheet(isPresented: $showingNewFeedback) {
-                NorthlightFeedbackView()
-            }
-            .onAppear {
-                // Configure SDK for preview with brand color
-                Northlight.configure(apiKey: "preview_key", brandColor: .systemIndigo)
-            }
-        }
-    }
-    
-    return PreviewPublicFeedbackView()
+    StatusBadge(status: "in_progress")
 }

@@ -18,18 +18,12 @@ public final class Northlight {
     
     public static func configure(apiKey: String, baseURL: String? = nil, brandColor: UIColor? = nil) {
         guard !apiKey.isEmpty else {
-            print("[Northlight] Warning: Empty API key provided")
             return
         }
         shared.apiKey = apiKey
         shared.customBaseURL = baseURL
         shared.brandColor = brandColor
         
-        if let baseURL = baseURL {
-            print("[Northlight] SDK configured with API key: \(String(apiKey.prefix(8)))... and custom base URL: \(baseURL)")
-        } else {
-            print("[Northlight] SDK configured with API key: \(String(apiKey.prefix(8)))...")
-        }
     }
     
     public func setUserEmail(_ email: String?) {
@@ -124,7 +118,6 @@ extension Northlight {
         let encoder = JSONEncoder()
         let body = try encoder.encode(submission)
         
-        print("[Northlight] Submitting feedback with title: \(title)")
         
         let response = try await NetworkService.shared.request(
             "/feedback",

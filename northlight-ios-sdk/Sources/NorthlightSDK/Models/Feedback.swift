@@ -29,6 +29,35 @@ public struct Feedback: Codable {
         case updatedAt = "updated_at"
     }
     
+    // Memberwise initializer for creating instances manually (e.g., for previews)
+    public init(
+        id: String,
+        projectId: String,
+        title: String,
+        description: String,
+        status: String,
+        category: String? = nil,
+        platform: String? = nil,
+        userEmail: String? = nil,
+        deviceInfo: DeviceInfo? = nil,
+        voteCount: Int = 0,
+        createdAt: String,
+        updatedAt: String
+    ) {
+        self.id = id
+        self.projectId = projectId
+        self.title = title
+        self.description = description
+        self.status = status
+        self.category = category
+        self.platform = platform
+        self.userEmail = userEmail
+        self.deviceInfo = deviceInfo
+        self.voteCount = voteCount
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
+    }
+    
     // Handle missing vote_count in API response
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)

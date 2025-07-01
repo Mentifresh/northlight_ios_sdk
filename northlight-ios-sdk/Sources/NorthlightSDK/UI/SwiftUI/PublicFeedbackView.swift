@@ -12,14 +12,33 @@ public struct PublicFeedbackView: View {
     @State private var alertTitle = ""
     @State private var alertMessage = ""
     
-    enum StatusFilter: String, CaseIterable {
-        case all = "All"
-        case pending = "Pending"
-        case suggested = "Suggested"
-        case approved = "Approved"
-        case inProgress = "In Progress"
-        case completed = "Completed"
-        case rejected = "Rejected"
+    enum StatusFilter: CaseIterable {
+        case all
+        case pending
+        case suggested
+        case approved
+        case inProgress
+        case completed
+        case rejected
+        
+        var displayName: String {
+            switch self {
+            case .all:
+                return String(localized: "feedback.filter.all")
+            case .pending:
+                return String(localized: "feedback.filter.pending")
+            case .suggested:
+                return String(localized: "feedback.filter.suggested")
+            case .approved:
+                return String(localized: "feedback.filter.approved")
+            case .inProgress:
+                return String(localized: "feedback.filter.in_progress")
+            case .completed:
+                return String(localized: "feedback.filter.completed")
+            case .rejected:
+                return String(localized: "feedback.filter.rejected")
+            }
+        }
         
         var statusValue: String? {
             switch self {
@@ -73,11 +92,11 @@ public struct PublicFeedbackView: View {
                 }
                 .ignoresSafeArea(edges: .bottom)
             }
-            .navigationTitle("Feature Requests")
+            .navigationTitle(String(localized: "feedback.title"))
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Close") {
+                    Button(String(localized: "common.close")) {
                         onCancel?()
                         presentationMode.wrappedValue.dismiss()
                     }
@@ -95,7 +114,7 @@ public struct PublicFeedbackView: View {
                                     if selectedStatusFilter == filter {
                                         Image(systemName: "checkmark")
                                     }
-                                    Text(filter.rawValue)
+                                    Text(filter.displayName)
                                 }
                             }
                         }
@@ -109,7 +128,7 @@ public struct PublicFeedbackView: View {
                 Alert(
                     title: Text(alertTitle),
                     message: Text(alertMessage),
-                    dismissButton: .default(Text("OK"))
+                    dismissButton: .default(Text(String(localized: "common.ok")))
                 )
             }
         }
@@ -130,11 +149,11 @@ public struct PublicFeedbackView: View {
     
     private var emptyStateView: some View {
         VStack(spacing: NorthlightTheme.Spacing.medium) {
-            Text("No feature requests yet")
+            Text(String(localized: "feedback.empty.title"))
                 .font(NorthlightTheme.Typography.headlineSwiftUI)
                 .foregroundColor(Color(NorthlightTheme.Colors.label))
             
-            Text("Be the first to submit one!")
+            Text(String(localized: "feedback.empty.subtitle"))
                 .font(NorthlightTheme.Typography.bodySwiftUI)
                 .foregroundColor(Color(NorthlightTheme.Colors.secondaryLabel))
         }
@@ -166,7 +185,7 @@ public struct PublicFeedbackView: View {
         Button(action: {
             showingNewFeedback = true
         }) {
-            Text("Submit New Feature Request")
+            Text(String(localized: "feedback.submit.button"))
                 .font(NorthlightTheme.Typography.headlineSwiftUI)
                 .foregroundColor(Color(NorthlightTheme.Colors.buttonText))
                 .frame(maxWidth: .infinity)
@@ -174,6 +193,7 @@ public struct PublicFeedbackView: View {
                 .background(Color(NorthlightTheme.Colors.buttonBackground))
                 .cornerRadius(NorthlightTheme.CornerRadius.button)
                 .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 2)
+                .padding(.bottom, 8)
         }
     }
     
@@ -210,8 +230,8 @@ public struct PublicFeedbackView: View {
     
     private func voteFeedback(_ feedback: Feedback) {
         guard !votedFeedbackIds.contains(feedback.id) else {
-            alertTitle = "Already Voted"
-            alertMessage = "You have already voted for this feature request."
+            alertTitle = String(localized: "error.already_voted.title")
+            alertMessage = String(localized: "error.already_voted.message")
             showingAlert = true
             return
         }
@@ -251,10 +271,10 @@ public struct PublicFeedbackView: View {
         if let northlightError = error as? NorthlightError {
             switch northlightError {
             case .networkError:
-                alertTitle = "Network Error"
-                alertMessage = "Please check your internet connection and try again."
+                alertTitle = String(localized: "error.network.title")
+                alertMessage = String(localized: "error.network.message")
             default:
-                alertTitle = "Error"
+                alertTitle = String(localized: "error.generic.title")
                 alertMessage = northlightError.errorDescription ?? "An unexpected error occurred."
             }
         } else {
@@ -395,9 +415,22 @@ struct StatusBadge: View {
     }
     
     var displayText: String {
-        status.split(separator: " ")
-            .map { $0.capitalized }
-            .joined(separator: " ")
+        switch status.lowercased() {
+        case "pending":
+            return String(localized: "status.pending")
+        case "suggested":
+            return String(localized: "status.suggested")
+        case "approved":
+            return String(localized: "status.approved")
+        case "in_progress":
+            return String(localized: "status.in_progress")
+        case "completed":
+            return String(localized: "status.completed")
+        case "rejected":
+            return String(localized: "status.rejected")
+        default:
+            return status.capitalized
+        }
     }
     
     var body: some View {

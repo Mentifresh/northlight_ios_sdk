@@ -34,16 +34,16 @@ public struct NorthlightFeedbackView: View {
                 VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xLarge) {
                     // Title Section
                     VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
-                        NorthlightLabel(text: "Title", isRequired: true)
+                        NorthlightLabel(text: String(localized: "feedback.form.title.label"), isRequired: true)
                         
-                        TextField("What's your feedback about?", text: $title)
+                        TextField(String(localized: "feedback.form.title.placeholder"), text: $title)
                             .textFieldStyle(NorthlightTextFieldStyle())
                             .disabled(isLoading)
                     }
                     
                     // Description Section
                     VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
-                        NorthlightLabel(text: "Description", isRequired: true)
+                        NorthlightLabel(text: String(localized: "feedback.form.description.label"), isRequired: true)
                         
                         ZStack(alignment: .topLeading) {
                             TextEditor(text: $description)
@@ -57,7 +57,7 @@ public struct NorthlightFeedbackView: View {
                                 .disabled(isLoading)
                             
                             if description.isEmpty {
-                                Text("Tell us more about your feedback...")
+                                Text(String(localized: "feedback.form.description.placeholder"))
                                     .foregroundColor(Color(NorthlightTheme.Colors.tertiaryLabel))
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 12)
@@ -68,7 +68,7 @@ public struct NorthlightFeedbackView: View {
                     
                     // Category Section
                     VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
-                        NorthlightLabel(text: "Category", isRequired: false)
+                        NorthlightLabel(text: String(localized: "feedback.form.category.label"), isRequired: false)
                         
                         Picker("Category", selection: $category) {
                             ForEach(categories, id: \.self) { category in
@@ -88,9 +88,9 @@ public struct NorthlightFeedbackView: View {
                     
                     // Email Section
                     VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
-                        NorthlightLabel(text: "Email", isRequired: false)
+                        NorthlightLabel(text: String(localized: "feedback.form.email.label"), isRequired: false)
                         
-                        TextField("your@email.com", text: $email)
+                        TextField(String(localized: "feedback.form.email.placeholder"), text: $email)
                             .textFieldStyle(NorthlightTextFieldStyle())
                             .keyboardType(.emailAddress)
                             .autocapitalization(.none)
@@ -103,7 +103,7 @@ public struct NorthlightFeedbackView: View {
                             ProgressView()
                                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         } else {
-                            Text("Submit Feedback")
+                            Text(String(localized: "feedback.form.submit.button"))
                                 .font(NorthlightTheme.Typography.headlineSwiftUI)
                         }
                     }
@@ -118,11 +118,11 @@ public struct NorthlightFeedbackView: View {
                 .padding(NorthlightTheme.Spacing.large)
             }
             .background(Color(NorthlightTheme.Colors.background))
-            .navigationTitle("Send Feedback")
+            .navigationTitle(String(localized: "feedback.form.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
+                    Button(String(localized: "common.cancel")) {
                         onCancel?()
                         presentationMode.wrappedValue.dismiss()
                     }
@@ -133,7 +133,7 @@ public struct NorthlightFeedbackView: View {
                     if isLoading {
                         ProgressView()
                     } else {
-                        Button("Submit") {
+                        Button(String(localized: "common.submit")) {
                             submitFeedback()
                         }
                         .disabled(title.isEmpty || description.isEmpty)
@@ -144,7 +144,7 @@ public struct NorthlightFeedbackView: View {
                 Alert(
                     title: Text(alertTitle),
                     message: Text(alertMessage),
-                    dismissButton: .default(Text("OK")) {
+                    dismissButton: .default(Text(String(localized: "common.ok"))) {
                         if shouldDismissAfterAlert {
                             if let feedbackId = successFeedbackId {
                                 onSuccess?(feedbackId)
@@ -159,8 +159,8 @@ public struct NorthlightFeedbackView: View {
     
     private func submitFeedback() {
         guard !title.isEmpty, !description.isEmpty else {
-            alertTitle = "Missing Information"
-            alertMessage = "Please provide both a title and description."
+            alertTitle = String(localized: "error.missing_info.title")
+            alertMessage = String(localized: "error.missing_info.message")
             showingAlert = true
             return
         }
@@ -183,8 +183,8 @@ public struct NorthlightFeedbackView: View {
                     isLoading = false
                     successFeedbackId = feedbackId
                     shouldDismissAfterAlert = true
-                    alertTitle = "Success!"
-                    alertMessage = "Your feature request has been submitted and will appear publicly once reviewed."
+                    alertTitle = String(localized: "feedback.form.success.title")
+                    alertMessage = String(localized: "feedback.form.success.message")
                     showingAlert = true
                 }
             } catch {
@@ -195,23 +195,23 @@ public struct NorthlightFeedbackView: View {
                     if let northlightError = error as? NorthlightError {
                         switch northlightError {
                         case .invalidAPIKey:
-                            alertTitle = "Configuration Error"
-                            alertMessage = "Invalid API key. Please check your Northlight configuration."
+                            alertTitle = String(localized: "error.configuration.title")
+                            alertMessage = String(localized: "error.configuration.message")
                         case .rateLimitExceeded:
-                            alertTitle = "Rate Limit"
-                            alertMessage = "Too many requests. Please try again later."
+                            alertTitle = String(localized: "error.rate_limit.title")
+                            alertMessage = String(localized: "error.rate_limit.message")
                         case .feedbackLimitReached:
-                            alertTitle = "Limit Reached"
-                            alertMessage = "You've reached the feedback limit for the free tier."
+                            alertTitle = String(localized: "error.limit_reached.title")
+                            alertMessage = String(localized: "error.limit_reached.message")
                         case .networkError:
-                            alertTitle = "Network Error"
-                            alertMessage = "Please check your internet connection and try again."
+                            alertTitle = String(localized: "error.network.title")
+                            alertMessage = String(localized: "error.network.message")
                         default:
-                            alertTitle = "Error"
+                            alertTitle = String(localized: "error.generic.title")
                             alertMessage = northlightError.errorDescription ?? "An unexpected error occurred."
                         }
                     } else {
-                        alertTitle = "Error"
+                        alertTitle = String(localized: "error.generic.title")
                         alertMessage = error.localizedDescription
                     }
                     

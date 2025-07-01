@@ -18,7 +18,10 @@ let package = Package(
         .target(
             name: "NorthlightSDK",
             dependencies: [],
-            path: "northlight-ios-sdk/Sources/NorthlightSDK"),
+            path: "northlight-ios-sdk/Sources/NorthlightSDK",
+            resources: [
+                .process("Resources")
+            ]),
         .testTarget(
             name: "NorthlightSDKTests",
             dependencies: ["NorthlightSDK"],

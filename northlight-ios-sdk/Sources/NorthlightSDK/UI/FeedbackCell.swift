@@ -55,15 +55,16 @@ class FeedbackCell: UITableViewCell {
         
         // Status
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
-        statusLabel.font = NorthlightTheme.Typography.small
+        statusLabel.font = UIFont.systemFont(ofSize: 11, weight: .medium)
         statusLabel.textAlignment = .center
-        statusLabel.layer.cornerRadius = 4
+        statusLabel.layer.cornerRadius = 12
         statusLabel.layer.masksToBounds = true
-        statusLabel.textColor = .white
+        statusLabel.textColor = NorthlightTheme.Colors.label
+        statusLabel.layer.borderWidth = 0.5
         
         // Vote button
         voteButton.translatesAutoresizingMaskIntoConstraints = false
-        voteButton.setImage(UIImage(systemName: "arrow.up"), for: .normal)
+        voteButton.setImage(UIImage(systemName: "hand.thumbsup"), for: .normal)
         voteButton.tintColor = NorthlightTheme.Colors.primary
         voteButton.backgroundColor = NorthlightTheme.Colors.background
         voteButton.layer.cornerRadius = NorthlightTheme.CornerRadius.small
@@ -73,8 +74,8 @@ class FeedbackCell: UITableViewCell {
         
         // Vote count
         voteCountLabel.translatesAutoresizingMaskIntoConstraints = false
-        voteCountLabel.font = NorthlightTheme.Typography.caption
-        voteCountLabel.textColor = NorthlightTheme.Colors.secondaryLabel
+        voteCountLabel.font = UIFont.systemFont(ofSize: 15, weight: .semibold)
+        voteCountLabel.textColor = NorthlightTheme.Colors.label
         voteCountLabel.textAlignment = .center
         
         // Date
@@ -150,22 +151,25 @@ class FeedbackCell: UITableViewCell {
             .joined(separator: " ")
         statusLabel.text = "  \(statusText)  "  // Add padding with spaces
         
+        // Update status label border color to match background
+        statusLabel.layer.borderColor = statusLabel.backgroundColor?.cgColor
+        
         // Set status color
         switch feedback.status.lowercased() {
         case "pending":
-            statusLabel.backgroundColor = UIColor.systemGray
+            statusLabel.backgroundColor = NorthlightTheme.Colors.statusPending
         case "suggested":
-            statusLabel.backgroundColor = UIColor.systemOrange
+            statusLabel.backgroundColor = NorthlightTheme.Colors.statusSuggested
         case "approved":
-            statusLabel.backgroundColor = UIColor.systemGreen
+            statusLabel.backgroundColor = NorthlightTheme.Colors.statusApproved
         case "in_progress":
-            statusLabel.backgroundColor = UIColor.systemBlue
+            statusLabel.backgroundColor = NorthlightTheme.Colors.statusInProgress
         case "completed":
-            statusLabel.backgroundColor = UIColor.systemPurple
+            statusLabel.backgroundColor = NorthlightTheme.Colors.statusCompleted
         case "rejected":
-            statusLabel.backgroundColor = UIColor.systemRed
+            statusLabel.backgroundColor = NorthlightTheme.Colors.statusRejected
         default:
-            statusLabel.backgroundColor = UIColor.systemGray
+            statusLabel.backgroundColor = NorthlightTheme.Colors.statusPending
         }
         
         // Format date
@@ -179,13 +183,19 @@ class FeedbackCell: UITableViewCell {
         
         // Update vote button state
         if hasVoted {
-            voteButton.backgroundColor = NorthlightTheme.Colors.primary
-            voteButton.tintColor = .white
-            voteButton.isEnabled = false
-        } else {
             voteButton.backgroundColor = NorthlightTheme.Colors.background
             voteButton.tintColor = NorthlightTheme.Colors.primary
+            voteButton.layer.borderColor = NorthlightTheme.Colors.primary.cgColor
+            voteButton.layer.borderWidth = 2
+            voteButton.isEnabled = false
+            voteCountLabel.textColor = NorthlightTheme.Colors.primary
+        } else {
+            voteButton.backgroundColor = NorthlightTheme.Colors.background
+            voteButton.tintColor = NorthlightTheme.Colors.secondaryLabel
+            voteButton.layer.borderColor = NorthlightTheme.Colors.border.cgColor
+            voteButton.layer.borderWidth = 1
             voteButton.isEnabled = true
+            voteCountLabel.textColor = NorthlightTheme.Colors.label
         }
     }
     

@@ -44,8 +44,11 @@ import NorthlightSDK
 // In your AppDelegate or App struct
 Northlight.configure(apiKey: "your_api_key_here")
 
+// With custom brand color
+Northlight.configure(apiKey: "your_api_key_here", brandColor: UIColor.systemBlue)
+
 // For development/testing with local server
-Northlight.configure(apiKey: "your_api_key_here", baseURL: "http://localhost:3000")
+Northlight.configure(apiKey: "your_api_key_here", baseURL: "http://localhost:3000", brandColor: UIColor.systemGreen)
 ```
 
 ### 2. Set User Information (Optional)

@@ -123,9 +123,9 @@ public class PublicFeedbackViewController: UIViewController {
         buttonContainer.translatesAutoresizingMaskIntoConstraints = false
         buttonContainer.backgroundColor = NorthlightTheme.Colors.background
         buttonContainer.layer.shadowColor = UIColor.black.cgColor
-        buttonContainer.layer.shadowOpacity = 0.1
-        buttonContainer.layer.shadowOffset = CGSize(width: 0, height: -2)
-        buttonContainer.layer.shadowRadius = 8
+        buttonContainer.layer.shadowOpacity = 0.05
+        buttonContainer.layer.shadowOffset = CGSize(width: 0, height: -5)
+        buttonContainer.layer.shadowRadius = 10
         
         view.addSubview(tableView)
         view.addSubview(buttonContainer)
@@ -157,12 +157,13 @@ public class PublicFeedbackViewController: UIViewController {
         NSLayoutConstraint.activate([
             buttonContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             buttonContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            buttonContainer.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-            buttonContainer.heightAnchor.constraint(equalToConstant: 80),
+            buttonContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            buttonContainer.heightAnchor.constraint(greaterThanOrEqualToConstant: 80),
             
             submitButton.leadingAnchor.constraint(equalTo: buttonContainer.leadingAnchor, constant: NorthlightTheme.Spacing.large),
             submitButton.trailingAnchor.constraint(equalTo: buttonContainer.trailingAnchor, constant: -NorthlightTheme.Spacing.large),
-            submitButton.centerYAnchor.constraint(equalTo: buttonContainer.centerYAnchor),
+            submitButton.topAnchor.constraint(equalTo: buttonContainer.topAnchor, constant: NorthlightTheme.Spacing.medium),
+            submitButton.bottomAnchor.constraint(equalTo: buttonContainer.safeAreaLayoutGuide.bottomAnchor, constant: -NorthlightTheme.Spacing.medium),
             submitButton.heightAnchor.constraint(equalToConstant: 52)
         ])
     }

@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 public final class Northlight {
     
@@ -8,19 +9,21 @@ public final class Northlight {
     private var userEmail: String?
     private var userIdentifier: String?
     private var customBaseURL: String?
+    private var brandColor: UIColor?
     
     private let defaultBaseURL = "https://northlight.app/api/v1"
     private let version = "1.0.0"
     
     private init() {}
     
-    public static func configure(apiKey: String, baseURL: String? = nil) {
+    public static func configure(apiKey: String, baseURL: String? = nil, brandColor: UIColor? = nil) {
         guard !apiKey.isEmpty else {
             print("[Northlight] Warning: Empty API key provided")
             return
         }
         shared.apiKey = apiKey
         shared.customBaseURL = baseURL
+        shared.brandColor = brandColor
         
         if let baseURL = baseURL {
             print("[Northlight] SDK configured with API key: \(String(apiKey.prefix(8)))... and custom base URL: \(baseURL)")
@@ -54,6 +57,10 @@ public final class Northlight {
     
     func getUserIdentifier() -> String? {
         return userIdentifier
+    }
+    
+    func getBrandColor() -> UIColor {
+        return brandColor ?? UIColor(red: 0.067, green: 0.067, blue: 0.067, alpha: 1.0) // Default #111111
     }
     
     func getBaseURL() -> String {

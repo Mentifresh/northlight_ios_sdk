@@ -46,6 +46,9 @@ public struct PublicFeedbackView: View {
     public var body: some View {
         NavigationView {
             ZStack {
+                Color(NorthlightTheme.Colors.background)
+                    .ignoresSafeArea()
+                
                 if isLoading {
                     ProgressView()
                         .scaleEffect(1.5)
@@ -57,12 +60,19 @@ public struct PublicFeedbackView: View {
                 
                 VStack {
                     Spacer()
-                    submitButton
-                        .padding(.horizontal, NorthlightTheme.Spacing.large)
-                        .padding(.bottom, NorthlightTheme.Spacing.large)
+                    VStack(spacing: 0) {
+                        submitButton
+                            .padding(.horizontal, NorthlightTheme.Spacing.large)
+                            .padding(.top, NorthlightTheme.Spacing.medium)
+                            .padding(.bottom, NorthlightTheme.Spacing.medium)
+                    }
+                    .background(
+                        Color(NorthlightTheme.Colors.background)
+                            .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: -5)
+                    )
                 }
+                .ignoresSafeArea(edges: .bottom)
             }
-            .background(Color(NorthlightTheme.Colors.background))
             .navigationTitle("Feature Requests")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
@@ -327,24 +337,24 @@ struct FeedbackRow: View {
                 }
             }
             
-            VStack(spacing: NorthlightTheme.Spacing.xxSmall) {
+            VStack(spacing: NorthlightTheme.Spacing.xSmall) {
                 Button(action: onVote) {
-                    Image(systemName: "arrow.up")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(hasVoted ? .white : Color(NorthlightTheme.Colors.primary))
+                    Image(systemName: "hand.thumbsup")
+                        .font(.system(size: 18, weight: .medium))
+                        .foregroundColor(hasVoted ? Color(NorthlightTheme.Colors.primary) : Color(NorthlightTheme.Colors.secondaryLabel))
                         .frame(width: 44, height: 44)
-                        .background(hasVoted ? Color(NorthlightTheme.Colors.primary) : Color(NorthlightTheme.Colors.background))
+                        .background(Color(NorthlightTheme.Colors.background))
                         .overlay(
                             RoundedRectangle(cornerRadius: NorthlightTheme.CornerRadius.small)
-                                .stroke(Color(NorthlightTheme.Colors.border), lineWidth: 1)
+                                .stroke(hasVoted ? Color(NorthlightTheme.Colors.primary) : Color(NorthlightTheme.Colors.border), lineWidth: hasVoted ? 2 : 1)
                         )
                         .cornerRadius(NorthlightTheme.CornerRadius.small)
                 }
                 .disabled(hasVoted)
                 
                 Text("\(feedback.voteCount)")
-                    .font(NorthlightTheme.Typography.captionSwiftUI)
-                    .foregroundColor(Color(NorthlightTheme.Colors.secondaryLabel))
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(hasVoted ? Color(NorthlightTheme.Colors.primary) : Color(NorthlightTheme.Colors.label))
             }
         }
         .padding(NorthlightTheme.Spacing.medium)
@@ -363,19 +373,19 @@ struct StatusBadge: View {
     var backgroundColor: Color {
         switch status.lowercased() {
         case "pending":
-            return Color.gray
+            return Color(NorthlightTheme.Colors.statusPending)
         case "suggested":
-            return Color.orange
+            return Color(NorthlightTheme.Colors.statusSuggested)
         case "approved":
-            return Color.green
+            return Color(NorthlightTheme.Colors.statusApproved)
         case "in_progress":
-            return Color.blue
+            return Color(NorthlightTheme.Colors.statusInProgress)
         case "completed":
-            return Color.purple
+            return Color(NorthlightTheme.Colors.statusCompleted)
         case "rejected":
-            return Color.red
+            return Color(NorthlightTheme.Colors.statusRejected)
         default:
-            return Color.gray
+            return Color(NorthlightTheme.Colors.statusPending)
         }
     }
     
@@ -387,11 +397,15 @@ struct StatusBadge: View {
     
     var body: some View {
         Text(displayText)
-            .font(NorthlightTheme.Typography.smallSwiftUI)
-            .foregroundColor(.white)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 4)
-            .background(backgroundColor)
-            .cornerRadius(4)
+            .font(.system(size: 11, weight: .medium))
+            .foregroundColor(Color(NorthlightTheme.Colors.label))
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(backgroundColor.opacity(0.9))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(backgroundColor, lineWidth: 0.5)
+            )
+            .cornerRadius(12)
     }
 }

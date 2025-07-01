@@ -5,11 +5,15 @@ struct NorthlightTheme {
     
     // MARK: - Colors
     struct Colors {
-        static let primary = UIColor(red: 0.067, green: 0.067, blue: 0.067, alpha: 1.0) // #111111
-        static let primarySwiftUI = Color(red: 0.067, green: 0.067, blue: 0.067)
+        static var primary: UIColor {
+            return Northlight.shared.getBrandColor()
+        }
+        static var primarySwiftUI: Color {
+            return Color(primary)
+        }
         
-        static let accent = UIColor.systemBlue
-        static let accentSwiftUI = Color.blue
+        static let accent = UIColor.systemGray
+        static let accentSwiftUI = Color.gray
         
         static let background = UIColor.systemBackground
         static let secondaryBackground = UIColor.secondarySystemBackground
@@ -26,10 +30,18 @@ struct NorthlightTheme {
         static let warning = UIColor.systemOrange
         
         // Button colors
-        static let buttonBackground = primary
+        static var buttonBackground: UIColor { primary }
         static let buttonText = UIColor.white
-        static let buttonBackgroundSwiftUI = primarySwiftUI
+        static var buttonBackgroundSwiftUI: Color { primarySwiftUI }
         static let buttonTextSwiftUI = Color.white
+        
+        // Status colors (pastel versions)
+        static let statusPending = UIColor(red: 0.7, green: 0.7, blue: 0.7, alpha: 1.0) // Soft gray
+        static let statusSuggested = UIColor(red: 1.0, green: 0.8, blue: 0.6, alpha: 1.0) // Soft orange
+        static let statusApproved = UIColor(red: 0.6, green: 0.85, blue: 0.6, alpha: 1.0) // Soft green
+        static let statusInProgress = UIColor(red: 0.6, green: 0.7, blue: 0.9, alpha: 1.0) // Soft blue
+        static let statusCompleted = UIColor(red: 0.8, green: 0.7, blue: 0.9, alpha: 1.0) // Soft purple
+        static let statusRejected = UIColor(red: 0.95, green: 0.7, blue: 0.7, alpha: 1.0) // Soft red
     }
     
     // MARK: - Typography

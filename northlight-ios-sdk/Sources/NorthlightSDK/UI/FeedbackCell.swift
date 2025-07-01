@@ -57,7 +57,7 @@ class FeedbackCell: UITableViewCell {
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
         statusLabel.font = UIFont.systemFont(ofSize: 11, weight: .medium)
         statusLabel.textAlignment = .center
-        statusLabel.layer.cornerRadius = 12
+        statusLabel.layer.cornerRadius = 6
         statusLabel.layer.masksToBounds = true
         statusLabel.textColor = NorthlightTheme.Colors.label
         statusLabel.layer.borderWidth = 0.5
@@ -149,7 +149,7 @@ class FeedbackCell: UITableViewCell {
         let statusText = feedback.status.split(separator: " ")
             .map { $0.capitalized }
             .joined(separator: " ")
-        statusLabel.text = "  \(statusText)  "  // Add padding with spaces
+        statusLabel.text = "   \(statusText)   "  // Add more padding with spaces
         
         // Update status label border color to match background
         statusLabel.layer.borderColor = statusLabel.backgroundColor?.cgColor

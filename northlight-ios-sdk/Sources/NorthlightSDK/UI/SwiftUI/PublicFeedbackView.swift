@@ -399,13 +399,13 @@ struct StatusBadge: View {
         Text(displayText)
             .font(.system(size: 11, weight: .medium))
             .foregroundColor(Color(NorthlightTheme.Colors.label))
-            .padding(.horizontal, 10)
+            .padding(.horizontal, 12)
             .padding(.vertical, 6)
             .background(backgroundColor.opacity(0.9))
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
+                RoundedRectangle(cornerRadius: 6)
                     .stroke(backgroundColor, lineWidth: 0.5)
             )
-            .cornerRadius(12)
+            .cornerRadius(6)
     }
 }

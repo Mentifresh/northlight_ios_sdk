@@ -42,7 +42,7 @@ public struct FeedbackDetailView: View {
                 
                 // Description
                 VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.small) {
-                    Text(String(localized: "feedback.detail.description"))
+                    Text(String.northlightLocalized("feedback.detail.description"))
                         .font(NorthlightTheme.Typography.captionSwiftUI)
                         .foregroundColor(Color(NorthlightTheme.Colors.secondaryLabel))
                     
@@ -59,7 +59,7 @@ public struct FeedbackDetailView: View {
                     
                     HStack {
                         VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
-                            Text(String(localized: "feedback.detail.votes"))
+                            Text(String.northlightLocalized("feedback.detail.votes"))
                                 .font(NorthlightTheme.Typography.captionSwiftUI)
                                 .foregroundColor(Color(NorthlightTheme.Colors.secondaryLabel))
                             
@@ -75,7 +75,7 @@ public struct FeedbackDetailView: View {
                                 Image(systemName: hasVoted ? "hand.thumbsup.fill" : "hand.thumbsup")
                                     .font(.system(size: 18, weight: .medium))
                                 
-                                Text(hasVoted ? String(localized: "feedback.detail.voted") : String(localized: "feedback.detail.vote"))
+                                Text(hasVoted ? String.northlightLocalized("feedback.detail.voted") : String.northlightLocalized("feedback.detail.vote"))
                                     .font(NorthlightTheme.Typography.headlineSwiftUI)
                             }
                             .foregroundColor(hasVoted ? Color(NorthlightTheme.Colors.primary) : Color(NorthlightTheme.Colors.buttonText))
@@ -100,7 +100,7 @@ public struct FeedbackDetailView: View {
                     if feedback.updatedAt != feedback.createdAt,
                        let updatedDate = ISO8601DateFormatter().date(from: feedback.updatedAt) {
                         VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
-                            Text(String(localized: "feedback.detail.updated"))
+                            Text(String.northlightLocalized("feedback.detail.updated"))
                                 .font(NorthlightTheme.Typography.captionSwiftUI)
                                 .foregroundColor(Color(NorthlightTheme.Colors.secondaryLabel))
                             
@@ -111,7 +111,7 @@ public struct FeedbackDetailView: View {
                     }
                     
                     VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
-                        Text(String(localized: "feedback.detail.id"))
+                        Text(String.northlightLocalized("feedback.detail.id"))
                             .font(NorthlightTheme.Typography.captionSwiftUI)
                             .foregroundColor(Color(NorthlightTheme.Colors.secondaryLabel))
                         
@@ -125,15 +125,8 @@ public struct FeedbackDetailView: View {
             }
         }
         .background(Color(NorthlightTheme.Colors.background))
-        .navigationTitle(String(localized: "feedback.detail.title"))
+        .navigationTitle(String.northlightLocalized("feedback.detail.title"))
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(String(localized: "common.close")) {
-                    presentationMode.wrappedValue.dismiss()
-                }
-            }
-        }
     }
 }
 

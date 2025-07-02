@@ -12,7 +12,6 @@ public struct PublicFeedbackView: View {
     @State private var alertTitle = ""
     @State private var alertMessage = ""
     @State private var selectedFeedback: Feedback?
-    @State private var showingFeedbackDetail = false
     
     enum StatusFilter: CaseIterable {
         case all
@@ -26,19 +25,19 @@ public struct PublicFeedbackView: View {
         var displayName: String {
             switch self {
             case .all:
-                return String(localized: "feedback.filter.all")
+                return String.northlightLocalized("feedback.filter.all")
             case .pending:
-                return String(localized: "feedback.filter.pending")
+                return String.northlightLocalized("feedback.filter.pending")
             case .suggested:
-                return String(localized: "feedback.filter.suggested")
+                return String.northlightLocalized("feedback.filter.suggested")
             case .approved:
-                return String(localized: "feedback.filter.approved")
+                return String.northlightLocalized("feedback.filter.approved")
             case .inProgress:
-                return String(localized: "feedback.filter.in_progress")
+                return String.northlightLocalized("feedback.filter.in_progress")
             case .completed:
-                return String(localized: "feedback.filter.completed")
+                return String.northlightLocalized("feedback.filter.completed")
             case .rejected:
-                return String(localized: "feedback.filter.rejected")
+                return String.northlightLocalized("feedback.filter.rejected")
             }
         }
         
@@ -94,11 +93,11 @@ public struct PublicFeedbackView: View {
                 }
                 .ignoresSafeArea(edges: .bottom)
             }
-            .navigationTitle(String(localized: "feedback.title"))
+            .navigationTitle(String.northlightLocalized("feedback.title"))
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(String(localized: "common.close")) {
+                    Button(String.northlightLocalized("common.close")) {
                         onCancel?()
                         presentationMode.wrappedValue.dismiss()
                     }
@@ -130,7 +129,7 @@ public struct PublicFeedbackView: View {
                 Alert(
                     title: Text(alertTitle),
                     message: Text(alertMessage),
-                    dismissButton: .default(Text(String(localized: "common.ok")))
+                    dismissButton: .default(Text(String.northlightLocalized("common.ok")))
                 )
             }
         }
@@ -147,29 +146,15 @@ public struct PublicFeedbackView: View {
                 }
             )
         }
-        .sheet(isPresented: $showingFeedbackDetail) {
-            if let feedback = selectedFeedback {
-                NavigationView {
-                    FeedbackDetailView(
-                        feedback: feedback,
-                        hasVoted: .constant(votedFeedbackIds.contains(feedback.id)),
-                        onVote: {
-                            showingFeedbackDetail = false
-                            voteFeedback(feedback)
-                        }
-                    )
-                }
-            }
-        }
     }
     
     private var emptyStateView: some View {
         VStack(spacing: NorthlightTheme.Spacing.medium) {
-            Text(String(localized: "feedback.empty.title"))
+            Text(String.northlightLocalized("feedback.empty.title"))
                 .font(NorthlightTheme.Typography.headlineSwiftUI)
                 .foregroundColor(Color(NorthlightTheme.Colors.label))
             
-            Text(String(localized: "feedback.empty.subtitle"))
+            Text(String.northlightLocalized("feedback.empty.subtitle"))
                 .font(NorthlightTheme.Typography.bodySwiftUI)
                 .foregroundColor(Color(NorthlightTheme.Colors.secondaryLabel))
         }
@@ -179,18 +164,25 @@ public struct PublicFeedbackView: View {
         ScrollView {
             LazyVStack(spacing: NorthlightTheme.Spacing.small) {
                 ForEach(filteredFeedbackItems, id: \.id) { feedback in
-                    FeedbackRow(
-                        feedback: feedback,
-                        hasVoted: votedFeedbackIds.contains(feedback.id),
-                        onVote: {
-                            voteFeedback(feedback)
-                        },
-                        onTap: {
-                            selectedFeedback = feedback
-                            showingFeedbackDetail = true
-                        }
-                    )
-                    .padding(.horizontal, NorthlightTheme.Spacing.medium)
+                    NavigationLink(
+                        destination: FeedbackDetailView(
+                            feedback: feedback,
+                            hasVoted: .constant(votedFeedbackIds.contains(feedback.id)),
+                            onVote: {
+                                voteFeedback(feedback)
+                            }
+                        )
+                    ) {
+                        FeedbackRow(
+                            feedback: feedback,
+                            hasVoted: votedFeedbackIds.contains(feedback.id),
+                            onVote: {
+                                voteFeedback(feedback)
+                            }
+                        )
+                        .padding(.horizontal, NorthlightTheme.Spacing.medium)
+                    }
+                    .buttonStyle(PlainButtonStyle())
                 }
             }
             .padding(.top, NorthlightTheme.Spacing.medium)
@@ -205,7 +197,7 @@ public struct PublicFeedbackView: View {
         Button(action: {
             showingNewFeedback = true
         }) {
-            Text(String(localized: "feedback.submit.button"))
+            Text(String.northlightLocalized("feedback.submit.button"))
                 .font(NorthlightTheme.Typography.headlineSwiftUI)
                 .foregroundColor(Color(NorthlightTheme.Colors.buttonText))
                 .frame(maxWidth: .infinity)
@@ -250,8 +242,8 @@ public struct PublicFeedbackView: View {
     
     private func voteFeedback(_ feedback: Feedback) {
         guard !votedFeedbackIds.contains(feedback.id) else {
-            alertTitle = String(localized: "error.already_voted.title")
-            alertMessage = String(localized: "error.already_voted.message")
+            alertTitle = String.northlightLocalized("error.already_voted.title")
+            alertMessage = String.northlightLocalized("error.already_voted.message")
             showingAlert = true
             return
         }
@@ -291,14 +283,14 @@ public struct PublicFeedbackView: View {
         if let northlightError = error as? NorthlightError {
             switch northlightError {
             case .networkError:
-                alertTitle = String(localized: "error.network.title")
-                alertMessage = String(localized: "error.network.message")
+                alertTitle = String.northlightLocalized("error.network.title")
+                alertMessage = String.northlightLocalized("error.network.message")
             default:
-                alertTitle = String(localized: "error.generic.title")
-                alertMessage = northlightError.errorDescription ?? String(localized: "error.generic.message")
+                alertTitle = String.northlightLocalized("error.generic.title")
+                alertMessage = northlightError.errorDescription ?? String.northlightLocalized("error.generic.message")
             }
         } else {
-            alertTitle = String(localized: "error.generic.title")
+            alertTitle = String.northlightLocalized("error.generic.title")
             alertMessage = error.localizedDescription
         }
         showingAlert = true
@@ -349,7 +341,6 @@ struct FeedbackRow: View {
     let feedback: Feedback
     let hasVoted: Bool
     let onVote: () -> Void
-    let onTap: () -> Void
     
     var body: some View {
         HStack(alignment: .top, spacing: NorthlightTheme.Spacing.medium) {
@@ -410,10 +401,6 @@ struct FeedbackRow: View {
             RoundedRectangle(cornerRadius: NorthlightTheme.CornerRadius.large)
                 .stroke(Color(NorthlightTheme.Colors.border), lineWidth: 1)
         )
-        .contentShape(Rectangle())
-        .onTapGesture {
-            onTap()
-        }
     }
 }
 
@@ -442,17 +429,17 @@ struct StatusBadge: View {
     var displayText: String {
         switch status.lowercased() {
         case "pending":
-            return String(localized: "status.pending")
+            return String.northlightLocalized("status.pending")
         case "suggested":
-            return String(localized: "status.suggested")
+            return String.northlightLocalized("status.suggested")
         case "approved":
-            return String(localized: "status.approved")
+            return String.northlightLocalized("status.approved")
         case "in_progress":
-            return String(localized: "status.in_progress")
+            return String.northlightLocalized("status.in_progress")
         case "completed":
-            return String(localized: "status.completed")
+            return String.northlightLocalized("status.completed")
         case "rejected":
-            return String(localized: "status.rejected")
+            return String.northlightLocalized("status.rejected")
         default:
             return status.capitalized
         }

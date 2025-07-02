@@ -31,16 +31,16 @@ public struct NorthlightBugReportView: View {
                 VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xLarge) {
                     // Title Section
                     VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
-                        NorthlightLabel(text: String(localized: "feedback.form.title.label"), isRequired: true)
+                        NorthlightLabel(text: String.northlightLocalized("feedback.form.title.label"), isRequired: true)
                         
-                        TextField(String(localized: "bug.form.title.placeholder"), text: $title)
+                        TextField(String.northlightLocalized("bug.form.title.placeholder"), text: $title)
                             .textFieldStyle(NorthlightTextFieldStyle())
                             .disabled(isLoading)
                     }
                     
                     // Description Section
                     VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
-                        NorthlightLabel(text: String(localized: "feedback.form.description.label"), isRequired: true)
+                        NorthlightLabel(text: String.northlightLocalized("feedback.form.description.label"), isRequired: true)
                         
                         ZStack(alignment: .topLeading) {
                             TextEditor(text: $description)
@@ -54,7 +54,7 @@ public struct NorthlightBugReportView: View {
                                 .disabled(isLoading)
                             
                             if description.isEmpty {
-                                Text(String(localized: "bug.form.description.placeholder"))
+                                Text(String.northlightLocalized("bug.form.description.placeholder"))
                                     .foregroundColor(Color(NorthlightTheme.Colors.tertiaryLabel))
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 12)
@@ -65,15 +65,15 @@ public struct NorthlightBugReportView: View {
                     
                     // Severity Section
                     VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
-                        Text(String(localized: "bug.form.severity.label"))
+                        Text(String.northlightLocalized("bug.form.severity.label"))
                             .font(NorthlightTheme.Typography.captionSwiftUI)
                             .foregroundColor(Color(NorthlightTheme.Colors.secondaryLabel))
                         
                         Picker("Severity", selection: $severity) {
-                            Text(String(localized: "bug.form.severity.low")).tag(BugSeverity.low)
-                            Text(String(localized: "bug.form.severity.medium")).tag(BugSeverity.medium)
-                            Text(String(localized: "bug.form.severity.high")).tag(BugSeverity.high)
-                            Text(String(localized: "bug.form.severity.critical")).tag(BugSeverity.critical)
+                            Text(String.northlightLocalized("bug.form.severity.low")).tag(BugSeverity.low)
+                            Text(String.northlightLocalized("bug.form.severity.medium")).tag(BugSeverity.medium)
+                            Text(String.northlightLocalized("bug.form.severity.high")).tag(BugSeverity.high)
+                            Text(String.northlightLocalized("bug.form.severity.critical")).tag(BugSeverity.critical)
                         }
                         .pickerStyle(SegmentedPickerStyle())
                         .disabled(isLoading)
@@ -81,7 +81,7 @@ public struct NorthlightBugReportView: View {
                     
                     // Steps to Reproduce Section
                     VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
-                        NorthlightLabel(text: String(localized: "bug.form.steps.label"), isRequired: false)
+                        NorthlightLabel(text: String.northlightLocalized("bug.form.steps.label"), isRequired: false)
                         
                         ZStack(alignment: .topLeading) {
                             TextEditor(text: $stepsToReproduce)
@@ -95,7 +95,7 @@ public struct NorthlightBugReportView: View {
                                 .disabled(isLoading)
                             
                             if stepsToReproduce.isEmpty {
-                                Text(String(localized: "bug.form.steps.placeholder"))
+                                Text(String.northlightLocalized("bug.form.steps.placeholder"))
                                     .foregroundColor(Color(NorthlightTheme.Colors.tertiaryLabel))
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 12)
@@ -106,9 +106,9 @@ public struct NorthlightBugReportView: View {
                     
                     // Email Section
                     VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
-                        NorthlightLabel(text: String(localized: "feedback.form.email.label"), isRequired: false)
+                        NorthlightLabel(text: String.northlightLocalized("feedback.form.email.label"), isRequired: false)
                         
-                        TextField(String(localized: "feedback.form.email.placeholder"), text: $email)
+                        TextField(String.northlightLocalized("feedback.form.email.placeholder"), text: $email)
                             .textFieldStyle(NorthlightTextFieldStyle())
                             .keyboardType(.emailAddress)
                             .autocapitalization(.none)
@@ -121,7 +121,7 @@ public struct NorthlightBugReportView: View {
                             ProgressView()
                                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         } else {
-                            Text(String(localized: "bug.form.submit.button"))
+                            Text(String.northlightLocalized("bug.form.submit.button"))
                                 .font(NorthlightTheme.Typography.headlineSwiftUI)
                         }
                     }
@@ -136,11 +136,11 @@ public struct NorthlightBugReportView: View {
                 .padding(NorthlightTheme.Spacing.large)
             }
             .background(Color(NorthlightTheme.Colors.background))
-            .navigationTitle(String(localized: "bug.title"))
+            .navigationTitle(String.northlightLocalized("bug.title"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button(String(localized: "common.cancel")) {
+                    Button(String.northlightLocalized("common.cancel")) {
                         onCancel?()
                         presentationMode.wrappedValue.dismiss()
                     }
@@ -151,7 +151,7 @@ public struct NorthlightBugReportView: View {
                     if isLoading {
                         ProgressView()
                     } else {
-                        Button(String(localized: "common.submit")) {
+                        Button(String.northlightLocalized("common.submit")) {
                             submitBugReport()
                         }
                         .disabled(title.isEmpty || description.isEmpty)
@@ -162,7 +162,7 @@ public struct NorthlightBugReportView: View {
                 Alert(
                     title: Text(alertTitle),
                     message: Text(alertMessage),
-                    dismissButton: .default(Text(String(localized: "common.ok")))
+                    dismissButton: .default(Text(String.northlightLocalized("common.ok")))
                 )
             }
         }
@@ -170,8 +170,8 @@ public struct NorthlightBugReportView: View {
     
     private func submitBugReport() {
         guard !title.isEmpty, !description.isEmpty else {
-            alertTitle = String(localized: "error.missing_info.title")
-            alertMessage = String(localized: "error.missing_info.message")
+            alertTitle = String.northlightLocalized("error.missing_info.title")
+            alertMessage = String.northlightLocalized("error.missing_info.message")
             showingAlert = true
             return
         }
@@ -204,23 +204,23 @@ public struct NorthlightBugReportView: View {
                     if let northlightError = error as? NorthlightError {
                         switch northlightError {
                         case .invalidAPIKey:
-                            alertTitle = String(localized: "error.configuration.title")
-                            alertMessage = String(localized: "error.configuration.message")
+                            alertTitle = String.northlightLocalized("error.configuration.title")
+                            alertMessage = String.northlightLocalized("error.configuration.message")
                         case .rateLimitExceeded:
-                            alertTitle = String(localized: "error.rate_limit.title")
-                            alertMessage = String(localized: "error.rate_limit.message")
+                            alertTitle = String.northlightLocalized("error.rate_limit.title")
+                            alertMessage = String.northlightLocalized("error.rate_limit.message")
                         case .feedbackLimitReached:
-                            alertTitle = String(localized: "error.limit_reached.title")
-                            alertMessage = String(localized: "error.limit_reached.message")
+                            alertTitle = String.northlightLocalized("error.limit_reached.title")
+                            alertMessage = String.northlightLocalized("error.limit_reached.message")
                         case .networkError:
-                            alertTitle = String(localized: "error.network.title")
-                            alertMessage = String(localized: "error.network.message")
+                            alertTitle = String.northlightLocalized("error.network.title")
+                            alertMessage = String.northlightLocalized("error.network.message")
                         default:
-                            alertTitle = String(localized: "error.generic.title")
+                            alertTitle = String.northlightLocalized("error.generic.title")
                             alertMessage = northlightError.errorDescription ?? "An unexpected error occurred."
                         }
                     } else {
-                        alertTitle = String(localized: "error.generic.title")
+                        alertTitle = String.northlightLocalized("error.generic.title")
                         alertMessage = error.localizedDescription
                     }
                     

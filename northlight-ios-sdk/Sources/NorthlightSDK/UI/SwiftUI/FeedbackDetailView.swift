@@ -109,16 +109,6 @@ public struct FeedbackDetailView: View {
                                 .foregroundColor(Color(NorthlightTheme.Colors.label))
                         }
                     }
-                    
-                    VStack(alignment: .leading, spacing: NorthlightTheme.Spacing.xSmall) {
-                        Text(String.northlightLocalized("feedback.detail.id"))
-                            .font(NorthlightTheme.Typography.captionSwiftUI)
-                            .foregroundColor(Color(NorthlightTheme.Colors.secondaryLabel))
-                        
-                        Text(feedback.id)
-                            .font(.system(.caption, design: .monospaced))
-                            .foregroundColor(Color(NorthlightTheme.Colors.tertiaryLabel))
-                    }
                 }
                 .padding(.horizontal, NorthlightTheme.Spacing.large)
                 .padding(.bottom, NorthlightTheme.Spacing.xLarge)
